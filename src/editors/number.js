@@ -9,7 +9,8 @@ Form.editors.Number = Form.editors.Text.extend({
 
   events: _.extend({}, Form.editors.Text.prototype.events, {
     'keypress': 'onKeyPress',
-    'change': 'onKeyPress'
+    'change': 'onKeyPress',
+    'input':    'determineChange'
   }),
 
   initialize: function(options) {
