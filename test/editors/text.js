@@ -83,6 +83,17 @@
     assert.equal(editor.getValue(),"Updated Value");
   });
 
+  test('Value updates model', function() {
+		var model = new Backbone.Model({ title: 'Danger Zone!' });
+    var editor = new Editor({
+      model: model,
+      key: 'title'
+    }).render();
+    editor.setValue("Updated Value");
+		editor.render();
+		equal(editor.getValue(),"Updated Value");
+  });
+
 
 
   QUnit.module('Text#setValue');
