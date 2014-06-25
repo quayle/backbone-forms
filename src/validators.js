@@ -29,8 +29,8 @@ Form.validators = (function() {
         type: options.type,
         message: _.isFunction(options.message) ? options.message(options) : options.message
       };
-
-      if (value === null || value === undefined || value === false || value === '') return err;
+      
+      if (value === null || value === undefined || value === false || value === '' || Backbone.$.trim(value) === '' ) return err;
     };
   };
 
