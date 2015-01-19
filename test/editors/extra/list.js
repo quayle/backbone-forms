@@ -7,7 +7,7 @@ QUnit.module('List', {
 
     afterEach: function() {
         this.sinon.restore();
-        $('#qunit-fixture').remove('.length-test')
+        //$('#qunit-fixture').remove('.length-test')
     }
 });
 
@@ -82,7 +82,7 @@ QUnit.module('List', {
 
         assert.deepEqual(list.$('[data-action="add"]').text(), 'Add');
     });
-/*
+
     QUnit.test('Add label can be customized', function(assert) {
         var list = new List({
             schema: { addLabel: 'Agregar' }
@@ -91,6 +91,7 @@ QUnit.module('List', {
         assert.deepEqual(list.$('[data-action="add"]').text(), 'Agregar');
     });
 
+/*
     QUnit.test('length: Add button is hidden if maxListLength is reached', function(assert) {
         var maxLength = 10;
         var list = new List({
