@@ -763,7 +763,7 @@ QUnit.test('with data-fieldsets placeholder, on outermost element', function(ass
   assert.deepEqual(form.$el.html(), '<fieldset></fieldset>');
 });
 
-QUnit.test.todo('with attributes on form element', function(assert) {
+QUnit.test('with attributes on form element', function(assert) {
   var form = new Form({
     attributes: {
       autocomplete: "off"
