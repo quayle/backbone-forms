@@ -228,7 +228,6 @@
      * @return {Object|Null}
      */
     validate: function() {
-      if (!this.validators) return null;
 
       //Collect errors
       var errors = _.map(this.items, function(item) {
@@ -347,6 +346,10 @@
           formValues = this.list.form ? this.list.form.getValue() : {},
           validators = this.schema.validators,
           getValidator = this.getValidator;
+
+      if (this.editor.nestedForm && this.editor.nestedForm.validate) {
+        return this.editor.nestedForm.validate();
+      }
 
       if (!validators) return null;
 
