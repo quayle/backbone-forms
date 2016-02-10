@@ -223,16 +223,6 @@ QUnit.module('List', {
         assert.deepEqual(list.items.length, 2);
     });
 
-    QUnit.test('event: clicking something with data-action="add" adds an item', function(assert) {
-        var list = new List().render();
-
-        assert.deepEqual(list.items.length, 1);
-
-        list.$('[data-action="add"]').click();
-
-        assert.deepEqual(list.items.length, 2);
-    });
-
     QUnit.test('render() - sets the $list property to the data-items placeholder', function(assert) {
         var list = new List({
             template: _.template('<ul class="customList" data-items></div>')
