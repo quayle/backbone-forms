@@ -248,7 +248,7 @@ QUnit.module('List', {
 
         assert.deepEqual(list.items.length, 3);
 
-        assert.deepEqual(values, _.map(list.items, 'value'));
+        assert.deepEqual(values, _.pluck(list.items, 'value'));
     }
 
     QUnit.test('render() - creates items for each item in value array', function(assert) {
