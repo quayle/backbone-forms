@@ -1,35 +1,35 @@
 ;(function(Form, Editor) {
 
-  module('Text');
+  QUnit.module('Text');
 
   var same = deepEqual;
 
 
-  module('Text#initialize');
+  QUnit.module('Text#initialize');
 
-  test('Default type is text', function() {
+  QUnit.test('Default type is text', function(assert) {
     var editor = new Editor().render();
 
-    equal($(editor.el).attr('type'), 'text');
+    assert.equal($(editor.el).attr('type'), 'text');
   });
 
-  test('Type can be changed', function() {
+  QUnit.test('Type can be changed', function(assert) {
     var editor = new Editor({
       schema: { dataType: 'tel' }
     }).render();
 
-    equal($(editor.el).attr('type'), 'tel');
+    assert.equal($(editor.el).attr('type'), 'tel');
   });
 
-  test("previousValue should equal initial value", function() {
+  QUnit.test("previousValue should equal initial value", function() {
     var editor = new Editor({
       value: 'Test'
     }).render();
 
-    equal(editor.previousValue, 'Test');
+    assert.equal(editor.previousValue, 'Test');
   });
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
     var old$ = window.$,
       exceptionCaught = false;
 
@@ -45,36 +45,36 @@
 
     window.$ = old$;
 
-    ok(!exceptionCaught, ' using global \'$\' to render');
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
 
-  module('Text#getValue()');
+  QUnit.module('Text#getValue()');
 
-  test('Default value', function() {
+  QUnit.test('Default value', function(assert) {
     var editor = new Editor().render();
 
-    equal(editor.getValue(), '');
+    assert.equal(editor.getValue(), '');
   });
 
-  test('Custom value', function() {
+  QUnit.test('Custom value', function(assert) {
     var editor = new Editor({
       value: 'Test'
     }).render();
 
-    equal(editor.getValue(), 'Test');
+    assert.equal(editor.getValue(), 'Test');
   });
 
-  test('Value from model', function() {
+  QUnit.test('Value from model', function(assert) {
     var editor = new Editor({
       model: new Backbone.Model({ title: 'Danger Zone!' }),
       key: 'title'
     }).render();
 
-    equal(editor.getValue(), 'Danger Zone!');
+    assert.equal(editor.getValue(), 'Danger Zone!');
   });
 
-  test('Value updates model', function() {
+  QUnit.test('Value updates model', function(assert) {
 		var model = new Backbone.Model({ title: 'Danger Zone!' });
     var editor = new Editor({
       model: model,
@@ -82,36 +82,36 @@
     }).render();
     editor.setValue("Updated Value");
 		editor.render();
-		equal(editor.getValue(),"Updated Value");
+		assert.equal(editor.getValue(),"Updated Value");
   });
 
 
 
-  module('Text#setValue');
+  QUnit.module('Text#setValue');
 
-  test('updates the input value', function() {
+  QUnit.test('updates the input value', function(assert) {
     var editor = new Editor({
       key: 'title'
     }).render();
 
     editor.setValue('foobar');
 
-    equal(editor.getValue(), 'foobar');
-    equal($(editor.el).val(), 'foobar');
+    assert.equal(editor.getValue(), 'foobar');
+    assert.equal($(editor.el).val(), 'foobar');
   });
 
-  test("previousValue should equal set value", function() {
+  QUnit.test("previousValue should equal set value", function() {
     var editor = new Editor().render();
 
     editor.setValue('Test');
 
-    equal(editor.previousValue, 'Test');
+    assert.equal(editor.previousValue, 'Test');
   });
 
 
 
-  module('Text#focus', {
-    setup: function() {
+  QUnit.module('Text#focus', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -121,7 +121,7 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       //Remove the editor from the page
@@ -129,14 +129,14 @@
     }
   });
 
-  test('gives focus to editor and its input', function() {
+  QUnit.test('gives focus to editor and its input', function(assert) {
     this.editor.focus();
 
-    ok(this.editor.hasFocus);
-    ok(this.editor.$el.is(':focus'));
+    assert.ok(this.editor.hasFocus);
+    assert.ok(this.editor.$el.is(':focus'));
   });
 
-  test('triggers the "focus" event', function() {
+  QUnit.test('triggers the "focus" event', function(assert) {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -144,14 +144,14 @@
 
     editor.focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
 
 
-  module('Text#blur', {
-    setup: function() {
+  QUnit.module('Text#blur', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -159,25 +159,25 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test('removes focus from the editor and its input', function() {
+  QUnit.test('removes focus from the editor and its input', function(assert) {
     var editor = this.editor;
 
     editor.focus();
 
     editor.blur();
 
-    ok(!editor.hasFocus);
-    ok(!editor.$el.is(':focus'));
+    assert.ok(!editor.hasFocus);
+    assert.ok(!editor.$el.is(':focus'));
   });
 
-  test('triggers the "blur" event', function() {
+  QUnit.test('triggers the "blur" event', function(assert) {
     var editor = this.editor;
 
     editor.focus()
@@ -188,14 +188,14 @@
 
     editor.blur();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
 
 
-  module('Text#select', {
-    setup: function() {
+  QUnit.module('Text#select', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -203,14 +203,14 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test('triggers the "select" event', function() {
+  QUnit.test('triggers the "select" event', function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -219,14 +219,14 @@
 
     editor.select();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
 
 
-  module('Text events', {
-    setup: function() {
+  QUnit.module('Text events', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -234,14 +234,14 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test("'change' event - is triggered when value of input changes", function() {
+  QUnit.test("'change' event - is triggered when value of input changes", function() {
     var editor = this.editor;
 
     var callCount = 0;
@@ -290,8 +290,8 @@
           editor.$el.keyup();
           editor.$el.keyup();
 
-          ok(spy.callCount == callCount);
-          ok(spy.alwaysCalledWith(editor));
+          assert.ok(spy.callCount == callCount);
+          assert.ok(spy.alwaysCalledWith(editor));
 
           start();
         }, 0);
@@ -299,7 +299,7 @@
     }, 0);
   });
 
-  test("'focus' event - bubbles up from the input", function() {
+  QUnit.test("'focus' event - bubbles up from the input", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -308,11 +308,11 @@
 
     editor.$el.focus();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
   });
 
-  test("'blur' event - bubbles up from the input", function() {
+  QUnit.test("'blur' event - bubbles up from the input", function() {
     var editor = this.editor;
 
     editor.$el.focus();
@@ -323,11 +323,11 @@
 
     editor.$el.blur();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
   });
 
-  test("'select' event - bubbles up from the input", function() {
+  QUnit.test("'select' event - bubbles up from the input", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -336,8 +336,8 @@
 
     editor.$el.select();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
   });
 
 

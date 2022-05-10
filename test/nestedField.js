@@ -2,17 +2,17 @@
 
 var same = deepEqual;
 
-module('NestedField#initialize', {
-  setup: function() {
+QUnit.module('NestedField#initialize', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Can override NestedField template', function() {
+QUnit.test('Can override NestedField template', function(assert) {
   var template = _.template('<div class="nested-template"><%= title %></div>');
   var key = 'testing123';
 

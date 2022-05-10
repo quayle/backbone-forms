@@ -1,11 +1,11 @@
 ;(function(Form, Field, editors) {
 
-module('List', {
-    setup: function() {
+QUnit.module('List', {
+    beforeEach: function() {
         this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.sinon.restore();
         $('#qunit-fixture').remove('.length-test')
     }
@@ -34,13 +34,13 @@ var same = deepEqual;
 
     var List = editors.List;
 
-    test('Default settings', function() {
+    QUnit.test('Default settings', function(assert) {
         var list = new List();
 
         same(list.Editor, editors.Text);
     });
 
-    test('Uses custom list editors if defined', function() {
+    QUnit.test('Uses custom list editors if defined', function(assert) {
         var list = new List({
             schema: { itemType: 'Object' }
         });
@@ -48,7 +48,7 @@ var same = deepEqual;
         same(list.Editor, editors.List.Object);
     });
 
-    test('Uses custom list template if defined', function() {
+    QUnit.test('Uses custom list template if defined', function(assert) {
         var list = new List({
             schema: { listTemplate: _.template('<div>Custom<div/>') }
         });
@@ -56,7 +56,7 @@ var same = deepEqual;
         same(list.template(), '<div>Custom<div/>');
     });
 
-    test('Uses regular editor if there is no list version', function() {
+    QUnit.test('Uses regular editor if there is no list version', function(assert) {
         var list = new List({
             schema: { itemType: 'Number' }
         });
@@ -64,13 +64,13 @@ var same = deepEqual;
         same(list.Editor, editors.Number);
     });
 
-    test('Default value', function() {
+    QUnit.test('Default value', function(assert) {
         var list = new List().render();
 
         same(list.getValue(), []);
     });
 
-    test('Custom value', function() {
+    QUnit.test('Custom value', function(assert) {
         var list = new List({
             schema: { itemType: 'Number' },
             value: [1,2,3]
@@ -79,13 +79,13 @@ var same = deepEqual;
         same(list.getValue(), [1,2,3]);
     });
 
-    test('Add label default value', function() {
+    QUnit.test('Add label default value', function(assert) {
         var list = new List().render();
 
         same(list.$('[data-action="add"]').text(), 'Add');
     });
 
-    test('Add label can be customized', function() {
+    QUnit.test('Add label can be customized', function(assert) {
         var list = new List({
             schema: { addLabel: 'Agregar' }
         }).render();
@@ -93,7 +93,7 @@ var same = deepEqual;
         same(list.$('[data-action="add"]').text(), 'Agregar');
     });
 
-    test('length: Add button is hidden if maxListLength is reached', function() {
+    QUnit.test('length: Add button is hidden if maxListLength is reached', function(assert) {
         var maxLength = 10;
         var list = new List({
             schema: { maxListLength: maxLength }
@@ -112,7 +112,7 @@ var same = deepEqual;
         same(list.$('[data-action="add"]').is(':visible'), false);
     });
 
-    test('Uses Backbone.$ not global', function() {
+    QUnit.test('Uses Backbone.$ not global', function(assert) {
       var old$ = window.$,
         exceptionCaught = false;
 
@@ -129,7 +129,7 @@ var same = deepEqual;
 
       window.$ = old$;
 
-      ok(!exceptionCaught, ' using global \'$\' to render');
+      assert.ok(!exceptionCaught, ' using global \'$\' to render');
     });
 
     function createListWithMaxItems(maxLength) {
@@ -153,13 +153,13 @@ var same = deepEqual;
         return list;
     }
 
-    test('length: Add button is hidden if initial items >= maxListLength', function() {
+    QUnit.test('length: Add button is hidden if initial items >= maxListLength', function(assert) {
         var maxLength = 10;
 
         createListWithMaxItems(maxLength);
     });
 
-    test('length: Add button is shown again if num items < maxListLength', function() {
+    QUnit.test('length: Add button is shown again if num items < maxListLength', function(assert) {
         var maxLength = 10;
 
         var list = createListWithMaxItems(maxLength);
@@ -171,7 +171,7 @@ var same = deepEqual;
         same(list.$('[data-action="add"]').is(':visible'), true);
     });
 
-    test('Value from model', function() {
+    QUnit.test('Value from model', function(assert) {
         var list = new List({
             model: new Post,
             key: 'weapons'
@@ -180,7 +180,7 @@ var same = deepEqual;
         same(list.getValue(), ['uzi', '9mm', 'sniper rifle']);
     });
 
-    test('setValue() - updates input value', function() {
+    QUnit.test('setValue() - updates input value', function(assert) {
         var list = new List().render();
 
         list.setValue(['a', 'b', 'c']);
@@ -188,7 +188,7 @@ var same = deepEqual;
         same(list.getValue(), ['a', 'b', 'c']);
     });
 
-    test('validate() - returns validation errors', function() {
+    QUnit.test('validate() - returns validation errors', function(assert) {
         var list = new List({
             schema: { validators: ['required', 'email'] },
             value: ['invalid', 'john@example.com', '', 'ok@example.com']
@@ -203,7 +203,7 @@ var same = deepEqual;
         same(err.errors[3], null);
     });
 
-    test('validate() - returns null if there are no errors', function() {
+    QUnit.test('validate() - returns null if there are no errors', function(assert) {
         var list = new List({
             schema: { validators: ['required', 'email'] },
             value: ['john@example.com', 'ok@example.com']
@@ -214,7 +214,7 @@ var same = deepEqual;
         same(errs, null);
     });
 
-    test('event: clicking something with data-action="add" adds an item', function() {
+    QUnit.test('event: clicking something with data-action="add" adds an item', function(assert) {
         var list = new List().render();
 
         same(list.items.length, 1);
@@ -224,7 +224,7 @@ var same = deepEqual;
         same(list.items.length, 2);
     });
 
-    test('event: clicking something with data-action="add" adds an item', function() {
+    QUnit.test('event: clicking something with data-action="add" adds an item', function(assert) {
         var list = new List().render();
 
         same(list.items.length, 1);
@@ -234,12 +234,12 @@ var same = deepEqual;
         same(list.items.length, 2);
     });
 
-    test('render() - sets the $list property to the data-items placeholder', function() {
+    QUnit.test('render() - sets the $list property to the data-items placeholder', function(assert) {
         var list = new List({
             template: _.template('<ul class="customList" data-items></div>')
         }).render();
 
-        ok(list.$list.hasClass('customList'));
+        assert.ok(list.$list.hasClass('customList'));
     });
 
     function testItemCreate(list, values) {
@@ -252,7 +252,7 @@ var same = deepEqual;
         same(values, _.map(list.items, 'value'));
     }
 
-    test('render() - creates items for each item in value array', function() {
+    QUnit.test('render() - creates items for each item in value array', function(assert) {
         var values = [1,2,3];
 
         var list = new List({
@@ -263,7 +263,7 @@ var same = deepEqual;
         testItemCreate(list, values);
     });
 
-    test('render() - creates items for each item in value collection', function() {
+    QUnit.test('render() - creates items for each item in value collection', function(assert) {
         var values = [
             { value: 1 },
             { value: 2 },
@@ -278,7 +278,7 @@ var same = deepEqual;
         testItemCreate(list, values);
     });
 
-    test('render() - creates an initial empty item for empty array', function() {
+    QUnit.test('render() - creates an initial empty item for empty array', function(assert) {
         var list = new List({
             value: []
         });
@@ -290,7 +290,7 @@ var same = deepEqual;
         same(list.items.length, 1);
     });
 
-    test('addItem() - with no value', function() {
+    QUnit.test('addItem() - with no value', function(assert) {
         var form = new Form();
 
         var list = new List({
@@ -320,7 +320,7 @@ var same = deepEqual;
         same(actualOptions, expectedOptions);
     });
 
-    test('addItem() - with no value and a defaultValue on the itemType', function() {
+    QUnit.test('addItem() - with no value and a defaultValue on the itemType', function(assert) {
         var form = new Form();
 
         editors.defaultValue = editors.Text.extend({
@@ -358,7 +358,7 @@ var same = deepEqual;
         same(actualOptions, expectedOptions);
     });
 
-    test('addItem() - with value', function() {
+    QUnit.test('addItem() - with value', function(assert) {
         var form = new Form();
 
         var list = new List({
@@ -386,7 +386,7 @@ var same = deepEqual;
         same(_.last(list.items).value, 'foo');
     });
 
-    test('addItem() - adds the item to the DOM', function() {
+    QUnit.test('addItem() - adds the item to the DOM', function(assert) {
         var list = new List().render();
 
         list.addItem('foo');
@@ -396,7 +396,7 @@ var same = deepEqual;
         same($el.val(), 'foo');
     });
 
-    test('removeItem() - removes passed item from view and item array', function() {
+    QUnit.test('removeItem() - removes passed item from view and item array', function(assert) {
         var list = new List().render();
 
         list.addItem();
@@ -413,17 +413,17 @@ var same = deepEqual;
         same(_.indexOf(list.items, item), -1, 'Removed item is no longer in list.items');
     });
 
-    test('addItem() - sets editor focus if editor is not isAsync', function() {
+    QUnit.test('addItem() - sets editor focus if editor is not isAsync', function(assert) {
         var list = new List().render();
 
         this.sinon.spy(list.Editor.prototype, 'focus');
 
         list.addItem();
 
-        ok(list.Editor.prototype.focus.calledOnce);
+        assert.ok(list.Editor.prototype.focus.calledOnce);
     });
 
-    test('removeItem() - adds an empty item if list is empty', function() {
+    QUnit.test('removeItem() - adds an empty item if list is empty', function(assert) {
         var list = new List().render();
 
         var spy = sinon.spy(list, 'addItem');
@@ -434,9 +434,9 @@ var same = deepEqual;
         same(list.items.length, 1);
     });
 
-    test('removeItem() - can be configured to ask for confirmation - and is cancelled', function() {
+    QUnit.test('removeItem() - can be configured to ask for confirmation - and is cancelled', function(assert) {
         //Simulate clicking 'cancel' on confirm dialog
-        var stub = this.sinon.stub(window, 'confirm', function() {
+        var stub = this.sinon.stub(window, 'confirm', function(assert) {
             return false;
         });
 
@@ -460,9 +460,9 @@ var same = deepEqual;
         same(list.items.length, 2, 'Did not remove item');
     });
 
-    test('removeItem() - can be configured to ask for confirmation - and is confirmed', function() {
+    QUnit.test('removeItem() - can be configured to ask for confirmation - and is confirmed', function(assert) {
         //Simulate clicking 'ok' on confirm dialog
-        var stub = this.sinon.stub(window, 'confirm', function() {
+        var stub = this.sinon.stub(window, 'confirm', function(assert) {
             return true;
         });
 
@@ -482,7 +482,7 @@ var same = deepEqual;
         same(list.items.length, 1, 'Removed item');
     });
 
-    test("focus() - gives focus to editor and its first item's editor", function() {
+    QUnit.test("focus() - gives focus to editor and its first item's editor", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -491,13 +491,13 @@ var same = deepEqual;
 
         field.focus();
 
-        ok(field.items[0].editor.hasFocus);
-        ok(field.hasFocus);
+        assert.ok(field.items[0].editor.hasFocus);
+        assert.ok(field.hasFocus);
 
         field.remove();
     });
 
-    test("focus() - triggers the 'focus' event", function() {
+    QUnit.test("focus() - triggers the 'focus' event", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -510,13 +510,13 @@ var same = deepEqual;
 
         field.focus();
 
-        ok(spy.called);
-        ok(spy.calledWith(field));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field));
 
         field.remove();
     });
 
-    test("blur() - removes focus from the editor and its first item's editor", function() {
+    QUnit.test("blur() - removes focus from the editor and its first item's editor", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -528,14 +528,14 @@ var same = deepEqual;
 
         stop();
         setTimeout(function() {
-          ok(!field.items[0].editor.hasFocus);
-          ok(!field.hasFocus);
+          assert.ok(!field.items[0].editor.hasFocus);
+          assert.ok(!field.hasFocus);
 
           start();
         }, 0);
     });
 
-    test("blur() - triggers the 'blur' event", function() {
+    QUnit.test("blur() - triggers the 'blur' event", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -552,8 +552,8 @@ var same = deepEqual;
 
         stop();
         setTimeout(function() {
-          ok(spy.called);
-          ok(spy.calledWith(field));
+          assert.ok(spy.called);
+          assert.ok(spy.calledWith(field));
 
           start();
         }, 0);
@@ -561,7 +561,7 @@ var same = deepEqual;
         field.remove();
     });
 
-    test("'change' event - bubbles up from item's editor", function() {
+    QUnit.test("'change' event - bubbles up from item's editor", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -573,11 +573,11 @@ var same = deepEqual;
 
         field.items[0].editor.trigger('change', field.items[0].editor);
 
-        ok(spy.called);
-        ok(spy.calledWith(field));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field));
     });
 
-    test("'change' event - is triggered when an item is added", function() {
+    QUnit.test("'change' event - is triggered when an item is added", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -589,11 +589,11 @@ var same = deepEqual;
 
         var item = field.addItem(null, true);
 
-        ok(spy.called);
-        ok(spy.calledWith(field));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field));
     });
 
-    test("'change' event - is triggered when an item is removed", function() {
+    QUnit.test("'change' event - is triggered when an item is removed", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -607,11 +607,11 @@ var same = deepEqual;
 
         field.removeItem(item);
 
-        ok(spy.called);
-        ok(spy.calledWith(field));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field));
     });
 
-    test("'focus' event - bubbles up from item's editor when editor doesn't have focus", function() {
+    QUnit.test("'focus' event - bubbles up from item's editor when editor doesn't have focus", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -624,13 +624,13 @@ var same = deepEqual;
 
         field.items[0].editor.focus();
 
-        ok(spy.called);
-        ok(spy.calledWith(field));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field));
 
         field.remove();
     });
 
-    test("'focus' event - doesn't bubble up from item's editor when editor already has focus", function() {
+    QUnit.test("'focus' event - doesn't bubble up from item's editor when editor already has focus", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -644,10 +644,10 @@ var same = deepEqual;
 
         field.items[0].editor.focus();
 
-        ok(!spy.called);
+        assert.ok(!spy.called);
     });
 
-    test("'blur' event - bubbles up from item's editor when editor has focus and we're not focusing on another one of the editor's item's editors", function() {
+    QUnit.test("'blur' event - bubbles up from item's editor when editor has focus and we're not focusing on another one of the editor's item's editors", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -664,8 +664,8 @@ var same = deepEqual;
 
         stop();
         setTimeout(function() {
-            ok(spy.called);
-            ok(spy.calledWith(field));
+            assert.ok(spy.called);
+            assert.ok(spy.calledWith(field));
 
             start();
         }, 0);
@@ -673,7 +673,7 @@ var same = deepEqual;
         field.remove();
     });
 
-    test("'blur' event - doesn't bubble up from item's editor when editor has focus and we're focusing on another one of the editor's item's editors", function() {
+    QUnit.test("'blur' event - doesn't bubble up from item's editor when editor has focus and we're focusing on another one of the editor's item's editors", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -690,13 +690,13 @@ var same = deepEqual;
 
         stop();
         setTimeout(function() {
-            ok(!spy.called);
+            assert.ok(!spy.called);
 
             start();
         }, 0);
     });
 
-    test("'blur' event - doesn't bubble up from item's editor when editor doesn't have focus", function() {
+    QUnit.test("'blur' event - doesn't bubble up from item's editor when editor doesn't have focus", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -710,13 +710,13 @@ var same = deepEqual;
 
         stop();
         setTimeout(function() {
-            ok(!spy.called);
+            assert.ok(!spy.called);
 
             start();
         }, 0);
     });
 
-    test("'add' event - is triggered when an item is added", function() {
+    QUnit.test("'add' event - is triggered when an item is added", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -728,11 +728,11 @@ var same = deepEqual;
 
         var item = field.addItem(null, true);
 
-        ok(spy.called);
-        ok(spy.calledWith(field, item.editor));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field, item.editor));
     });
 
-    test("'remove' event - is triggered when an item is removed", function() {
+    QUnit.test("'remove' event - is triggered when an item is removed", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -746,11 +746,11 @@ var same = deepEqual;
 
         field.removeItem(item);
 
-        ok(spy.called);
-        ok(spy.calledWith(field, item.editor));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field, item.editor));
     });
 
-    test("Events bubbling up from item's editors", function() {
+    QUnit.test("Events bubbling up from item's editors", function() {
         var field = new List({
             model: new Post,
             key: 'weapons'
@@ -762,19 +762,19 @@ var same = deepEqual;
 
         field.items[0].editor.trigger('whatever', field.items[0].editor);
 
-        ok(spy.called);
-        ok(spy.calledWith(field, field.items[0].editor));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(field, field.items[0].editor));
     });
 })();
 
 
 
-module('List.Item', {
-    setup: function() {
+QUnit.module('List.Item', {
+    beforeEach: function() {
         this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.sinon.restore();
     }
 });
@@ -782,7 +782,7 @@ module('List.Item', {
 (function() {
     var List = editors.List;
 
-    test('initialize() - sets the template from options, then schema, then constructor', function() {
+    QUnit.test('initialize() - sets the template from options, then schema, then constructor', function(assert) {
       var optionsTemplate = _.template('<div>Options</div>'),
           schemaTemplate = _.template('<div>Schema</div>'),
           constructorTemplate = _.template('<div>Constructor</div>');
@@ -814,7 +814,7 @@ module('List.Item', {
       same(item.template(), '<div>Constructor</div>');
     });
 
-    test('render() - creates the editor for the given itemType', function() {
+    QUnit.test('render() - creates the editor for the given itemType', function(assert) {
         var spy = this.sinon.spy(editors, 'Number');
 
         var form = new Form();
@@ -845,7 +845,7 @@ module('List.Item', {
         });
     });
 
-    test('render() - creates the main element entirely from template, with editor in data-editor placeholder', function() {
+    QUnit.test('render() - creates the main element entirely from template, with editor in data-editor placeholder', function(assert) {
         //Create item
         var item = new List.Item({
             template: _.template('<div class="outer"><div class="inner" data-editor></div></div>'),
@@ -853,13 +853,13 @@ module('List.Item', {
         }).render();
 
         //Check there is no wrapper tag
-        ok(item.$el.hasClass('outer'));
+        assert.ok(item.$el.hasClass('outer'));
 
         //Check editor placed in correct location
-        ok(item.editor.$el.parent().hasClass('inner'));
+        assert.ok(item.editor.$el.parent().hasClass('inner'));
     });
 
-    test('getValue() - returns editor value', function() {
+    QUnit.test('getValue() - returns editor value', function(assert) {
         var item = new List.Item({
             list: new List,
             value: 'foo'
@@ -869,7 +869,7 @@ module('List.Item', {
         same(item.getValue(), 'foo');
     });
 
-    test('setValue() - sets editor value', function() {
+    QUnit.test('setValue() - sets editor value', function(assert) {
         var item = new List.Item({ list: new List }).render();
 
         item.setValue('woo');
@@ -878,7 +878,7 @@ module('List.Item', {
         same(item.getValue(), 'woo');
     });
 
-    test('remove() - removes the editor then itself', function() {
+    QUnit.test('remove() - removes the editor then itself', function(assert) {
         var item = new List.Item({ list: new List }).render();
 
         var editorSpy = this.sinon.spy(item.editor, 'remove'),
@@ -887,13 +887,13 @@ module('List.Item', {
         item.remove();
 
         //Check removed editor
-        ok(editorSpy.calledOnce, 'Called editor remove');
+        assert.ok(editorSpy.calledOnce, 'Called editor remove');
 
         //Check removed main item
-        ok(viewSpy.calledWith(item), 'Called parent view remove');
+        assert.ok(viewSpy.calledWith(item), 'Called parent view remove');
     });
 
-    test('validate() - invalid - calls setError and returns error', function() {
+    QUnit.test('validate() - invalid - calls setError and returns error', function(assert) {
         var item = new List.Item({
             list: new List({
                 schema: { validators: ['required', 'email'] }
@@ -910,7 +910,7 @@ module('List.Item', {
         same(spy.lastCall.args[0], err, 'Called with error');
     });
 
-    test('validate() - valid - calls clearError and returns null', function() {
+    QUnit.test('validate() - valid - calls clearError and returns null', function(assert) {
         var item = new List.Item({
             list: new List({
                 schema: { validators: ['required', 'email'] }
@@ -926,16 +926,16 @@ module('List.Item', {
         same(spy.callCount, 1, 'Called clearError');
     });
 
-    test('setError()', function() {
+    QUnit.test('setError()', function(assert) {
         var item = new List.Item({ list: new List }).render();
 
         item.setError({ type: 'errType', message: 'ErrMessage' });
 
-        ok(item.$el.hasClass(List.Item.errorClassName), 'Element has error class');
+        assert.ok(item.$el.hasClass(List.Item.errorClassName), 'Element has error class');
         same(item.$el.attr('title'), 'ErrMessage');
     });
 
-    test('clearError()', function() {
+    QUnit.test('clearError()', function(assert) {
         var item = new List.Item({ list: new List }).render();
 
         item.setError({ type: 'errType', message: 'ErrMessage' });
@@ -949,8 +949,8 @@ module('List.Item', {
 
 
 
-module('List.Modal', {
-    setup: function() {
+QUnit.module('List.Modal', {
+    beforeEach: function() {
         this.sinon = sinon.sandbox.create();
 
         //ModalAdapter interface
@@ -974,13 +974,13 @@ module('List.Modal', {
         };
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.sinon.restore();
     }
 });
 
 
-test('render() - when empty value, opens the modal', function() {
+QUnit.test('render() - when empty value, opens the modal', function(assert) {
     var editor = this.editor;
 
     this.sinon.spy(editor, 'openEditor');
@@ -990,11 +990,11 @@ test('render() - when empty value, opens the modal', function() {
 
     editor.render();
 
-    equal(editor.openEditor.calledOnce, true);
-    equal(editor.renderSummary.called, false);
+    assert.equal(editor.openEditor.calledOnce, true);
+    assert.equal(editor.renderSummary.called, false);
 });
 
-test('render() - with value, renders the summary', function() {
+QUnit.test('render() - with value, renders the summary', function(assert) {
     var editor = this.editor;
 
     this.sinon.spy(editor, 'openEditor');
@@ -1003,51 +1003,51 @@ test('render() - with value, renders the summary', function() {
     editor.value = { foo: 'bar' };
     editor.render();
 
-    equal(editor.openEditor.called, false);
-    equal(editor.renderSummary.calledOnce, true);
+    assert.equal(editor.openEditor.called, false);
+    assert.equal(editor.renderSummary.calledOnce, true);
 });
 
-test('renderSummary()', function() {
+QUnit.test('renderSummary()', function(assert) {
     var editor = this.editor;
 
     editor.setValue({ id: 1, name: 'foo' });
 
     editor.renderSummary();
 
-    equal(editor.$el.html(), '<div>Id: 1<br>Name: foo</div>');
+    assert.equal(editor.$el.html(), '<div>Id: 1<br>Name: foo</div>');
 });
 
-test('itemToString() - formats an object', function() {
+QUnit.test('itemToString() - formats an object', function(assert) {
     var editor = this.editor;
 
     var result = editor.itemToString({ id: 1, name: 'foo' });
 
-    equal(result, 'Id: 1<br />Name: foo');
+    assert.equal(result, 'Id: 1<br />Name: foo');
 });
 
-test('getStringValue() - when empty', function() {
+QUnit.test('getStringValue() - when empty', function(assert) {
     this.editor.setValue({});
 
-    equal(this.editor.getStringValue(), '[Empty]');
+    assert.equal(this.editor.getStringValue(), '[Empty]');
 });
 
-test('getStringValue() - with itemToString', function() {
+QUnit.test('getStringValue() - with itemToString', function(assert) {
     this.editor.schema.itemToString = function(val) {
         return 'foo';
     }
 
     this.editor.setValue({ id: 1, name: 'foo' });
 
-    equal(this.editor.getStringValue(), 'foo');
+    assert.equal(this.editor.getStringValue(), 'foo');
 });
 
-test('getStringValue() - defaulting to built-in itemToString', function() {
+QUnit.test('getStringValue() - defaulting to built-in itemToString', function(assert) {
     this.editor.setValue({ id: 1, name: 'foo' });
 
-    equal(this.editor.getStringValue(), 'Id: 1<br />Name: foo');
+    assert.equal(this.editor.getStringValue(), 'Id: 1<br />Name: foo');
 });
 
-test('openEditor() - opens the modal', function() {
+QUnit.test('openEditor() - opens the modal', function(assert) {
     var editor = this.editor,
         value = { id: 1, name: 'foo' };
 
@@ -1059,19 +1059,19 @@ test('openEditor() - opens the modal', function() {
 
     editor.openEditor();
 
-    ok(editor.modal instanceof this.MockModalAdapter);
-    equal(this.MockModalAdapter.prototype.open.calledOnce, true);
+    assert.ok(editor.modal instanceof this.MockModalAdapter);
+    assert.equal(this.MockModalAdapter.prototype.open.calledOnce, true);
 
     //Check how modal was instantiated
     var optionsArgs = this.MockModalAdapter.prototype.initialize.args[0][0],
         content = optionsArgs.content;
 
-    ok(content instanceof Form);
-    equal(content.schema, editor.nestedSchema);
-    equal(content.data, value);
+    assert.ok(content instanceof Form);
+    assert.equal(content.schema, editor.nestedSchema);
+    assert.equal(content.data, value);
 });
 
-test('openEditor() - triggers open and focus events on the editor', function() {
+QUnit.test('openEditor() - triggers open and focus events on the editor', function(assert) {
     var editor = this.editor;
 
     //Mocks
@@ -1083,11 +1083,11 @@ test('openEditor() - triggers open and focus events on the editor', function() {
 
     editor.openEditor();
 
-    equal(openSpy.calledOnce, true);
-    equal(focusSpy.calledOnce, true);
+    assert.equal(openSpy.calledOnce, true);
+    assert.equal(focusSpy.calledOnce, true);
 });
 
-test('openEditor() - responds to modal "cancel" event', function() {
+QUnit.test('openEditor() - responds to modal "cancel" event', function(assert) {
     var editor = this.editor;
 
     this.sinon.spy(editor, 'onModalClosed');
@@ -1096,10 +1096,10 @@ test('openEditor() - responds to modal "cancel" event', function() {
 
     editor.modal.trigger('cancel');
 
-    equal(editor.onModalClosed.calledOnce, true);
+    assert.equal(editor.onModalClosed.calledOnce, true);
 });
 
-test('openEditor() - responds to modal "ok" event', function() {
+QUnit.test('openEditor() - responds to modal "ok" event', function(assert) {
     var editor = this.editor;
 
     this.sinon.spy(editor, 'onModalSubmitted');
@@ -1108,16 +1108,16 @@ test('openEditor() - responds to modal "ok" event', function() {
 
     editor.modal.trigger('ok');
 
-    equal(editor.onModalSubmitted.calledOnce, true);
+    assert.equal(editor.onModalSubmitted.calledOnce, true);
 });
 
-test('onModalSubmitted - calls preventClose if validation fails', function() {
+QUnit.test('onModalSubmitted - calls preventClose if validation fails', function(assert) {
     var editor = this.editor;
 
     editor.openEditor();
 
     //Mocks
-    this.sinon.stub(editor.modalForm, 'validate', function() {
+    this.sinon.stub(editor.modalForm, 'validate', function(assert) {
         return 'err';
     });
 
@@ -1127,16 +1127,16 @@ test('onModalSubmitted - calls preventClose if validation fails', function() {
     editor.onModalSubmitted();
 
     //Test
-    ok(editor.modal.preventClose.calledOnce);
+    assert.ok(editor.modal.preventClose.calledOnce);
 });
 
-test('onModalSubmitted - sets editor value and renders the summary', function() {
+QUnit.test('onModalSubmitted - sets editor value and renders the summary', function(assert) {
     var editor = this.editor;
 
     editor.openEditor();
 
     //Mocks
-    this.sinon.stub(editor.modalForm, 'getValue', function() {
+    this.sinon.stub(editor.modalForm, 'getValue', function(assert) {
         return { foo: 'bar' };
     });
 
@@ -1146,11 +1146,11 @@ test('onModalSubmitted - sets editor value and renders the summary', function() 
     editor.onModalSubmitted();
 
     //Test
-    ok(editor.renderSummary.calledOnce);
-    deepEqual(editor.value, { foo: 'bar' });
+    assert.ok(editor.renderSummary.calledOnce);
+    assert.deepEqual(editor.value, { foo: 'bar' });
 });
 
-test('onModalSubmitted - triggers "readyToAdd" if this is a new item (no previous value)', function() {
+QUnit.test('onModalSubmitted - triggers "readyToAdd" if this is a new item (no previous value)', function(assert) {
     var editor = this.editor;
 
     editor.value = null;
@@ -1165,10 +1165,10 @@ test('onModalSubmitted - triggers "readyToAdd" if this is a new item (no previou
     editor.onModalSubmitted();
 
     //Test
-    ok(readyToAddSpy.calledOnce);
+    assert.ok(readyToAddSpy.calledOnce);
 });
 
-test('onModalSubmitted - triggers "change" and calls onModalClosed', function() {
+QUnit.test('onModalSubmitted - triggers "change" and calls onModalClosed', function(assert) {
     var editor = this.editor;
 
     editor.openEditor();
@@ -1183,11 +1183,11 @@ test('onModalSubmitted - triggers "change" and calls onModalClosed', function() 
     editor.onModalSubmitted();
 
     //Test
-    ok(changeSpy.calledOnce);
-    ok(editor.onModalClosed.calledOnce);
+    assert.ok(changeSpy.calledOnce);
+    assert.ok(editor.onModalClosed.calledOnce);
 });
 
-test('onModalClosed - triggers events and clears modal references', function() {
+QUnit.test('onModalClosed - triggers events and clears modal references', function(assert) {
     var editor = this.editor;
 
     editor.openEditor();
@@ -1200,38 +1200,38 @@ test('onModalClosed - triggers events and clears modal references', function() {
 
     editor.onModalClosed();
 
-    equal(editor.modal, null);
-    equal(editor.modalForm, null);
+    assert.equal(editor.modal, null);
+    assert.equal(editor.modalForm, null);
 
-    ok(closeSpy.calledOnce);
-    ok(blurSpy.calledOnce);
+    assert.ok(closeSpy.calledOnce);
+    assert.ok(blurSpy.calledOnce);
 });
 
-test('getValue()', function() {
+QUnit.test('getValue()', function(assert) {
     this.editor.value = { foo: 'bar' };
 
-    equal(this.editor.getValue(), this.editor.value);
+    assert.equal(this.editor.getValue(), this.editor.value);
 });
 
-test('setValue()', function() {
+QUnit.test('setValue()', function(assert) {
     var value = { foo: 'bar' };
 
     this.editor.setValue(value);
 
-    equal(this.editor.value, value);
+    assert.equal(this.editor.value, value);
 });
 
-test("focus() - opens the modal", function() {
+QUnit.test("focus() - opens the modal", function() {
     var editor = this.editor;
 
     this.sinon.spy(editor, 'openEditor');
 
     editor.focus();
 
-    ok(editor.openEditor.calledOnce);
+    assert.ok(editor.openEditor.calledOnce);
 });
 
-test("focus() - triggers the 'focus' event", function() {
+QUnit.test("focus() - triggers the 'focus' event", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1239,23 +1239,23 @@ test("focus() - triggers the 'focus' event", function() {
 
     editor.focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
-    ok(editor.hasFocus);
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
+    assert.ok(editor.hasFocus);
 });
 
-test("blur() - closes the modal", function() {
+QUnit.test("blur() - closes the modal", function() {
     var editor = this.editor;
 
     editor.focus();
 
     editor.blur()
 
-    ok(!editor.modal);
-    ok(!editor.hasFocus);
+    assert.ok(!editor.modal);
+    assert.ok(!editor.hasFocus);
 });
 
-test("blur() - triggers the 'blur' event", function() {
+QUnit.test("blur() - triggers the 'blur' event", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1265,11 +1265,11 @@ test("blur() - triggers the 'blur' event", function() {
 
     editor.blur();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
 });
 
-test("'change' event - is triggered when the modal is submitted", function() {
+QUnit.test("'change' event - is triggered when the modal is submitted", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1279,11 +1279,11 @@ test("'change' event - is triggered when the modal is submitted", function() {
 
     editor.modal.trigger('ok');
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
 });
 
-test("'focus' event - is triggered when the modal is opened", function() {
+QUnit.test("'focus' event - is triggered when the modal is opened", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1291,11 +1291,11 @@ test("'focus' event - is triggered when the modal is opened", function() {
 
     editor.openEditor();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
 });
 
-test("'blur' event - is triggered when the modal is closed", function() {
+QUnit.test("'blur' event - is triggered when the modal is closed", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1305,11 +1305,11 @@ test("'blur' event - is triggered when the modal is closed", function() {
 
     editor.modal.trigger('cancel');
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
 });
 
-test("'open' event - is triggered when the modal is opened", function() {
+QUnit.test("'open' event - is triggered when the modal is opened", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1317,11 +1317,11 @@ test("'open' event - is triggered when the modal is opened", function() {
 
     editor.openEditor();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
 });
 
-test("'close' event - is triggered when the modal is closed", function() {
+QUnit.test("'close' event - is triggered when the modal is closed", function() {
     var editor = this.editor,
         spy = this.sinon.spy();
 
@@ -1331,15 +1331,15 @@ test("'close' event - is triggered when the modal is closed", function() {
 
     editor.modal.trigger('cancel');
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
 });
 
 
 
 
-module('List.Object', {
-    setup: function() {
+QUnit.module('List.Object', {
+    beforeEach: function() {
         this.sinon = sinon.sandbox.create();
 
         //ModalAdapter interface
@@ -1363,20 +1363,20 @@ module('List.Object', {
         });
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.sinon.restore();
     }
 });
 
-test('initialize() - sets the nestedSchema', function() {
-    deepEqual(_.keys(this.editor.nestedSchema), ['id', 'name']);
+QUnit.test('initialize() - sets the nestedSchema', function(assert) {
+    assert.deepEqual(_.keys(this.editor.nestedSchema), ['id', 'name']);
 });
 
 
 
 
-module('List.NestedModel', {
-    setup: function() {
+QUnit.module('List.NestedModel', {
+    beforeEach: function() {
         this.sinon = sinon.sandbox.create();
 
         //ModalAdapter interface
@@ -1404,12 +1404,12 @@ module('List.NestedModel', {
         });
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.sinon.restore();
     }
 });
 
-test('initialize() - sets the nestedSchema, when schema is object', function() {
+QUnit.test('initialize() - sets the nestedSchema, when schema is object', function(assert) {
     var Model = Backbone.Model.extend({
         schema: {
             id: { type: 'Number' },
@@ -1424,10 +1424,10 @@ test('initialize() - sets the nestedSchema, when schema is object', function() {
         }
     });
 
-    deepEqual(_.keys(editor.nestedSchema), ['id', 'name']);
+    assert.deepEqual(_.keys(editor.nestedSchema), ['id', 'name']);
 });
 
-test('initialize() - sets the nestedSchema, when schema is function', function() {
+QUnit.test('initialize() - sets the nestedSchema, when schema is function', function(assert) {
     var Model = Backbone.Model.extend({
         schema: function() {
             return {
@@ -1444,11 +1444,11 @@ test('initialize() - sets the nestedSchema, when schema is function', function()
         }
     });
 
-    deepEqual(_.keys(editor.nestedSchema), ['id', 'name']);
+    assert.deepEqual(_.keys(editor.nestedSchema), ['id', 'name']);
 });
 
 
-test('Check validation of list nested models', function() {
+QUnit.test('Check validation of list nested models', function(assert) {
 
     //Save proto for restoring after the test otherwise next fails alternately.
     var tmpNestedModel = Backbone.Form.editors.List.NestedModel;
@@ -1468,17 +1468,17 @@ test('Check validation of list nested models', function() {
 
      Backbone.Form.editors.List.NestedModel = tmpNestedModel;
 
-     deepEqual(_.keys(form.validate().nestedModelList.errors[0]), ['name']);
+     assert.deepEqual(_.keys(form.validate().nestedModelList.errors[0]), ['name']);
 });
 
-test('getStringValue() - uses model.toString() if available', function() {
+QUnit.test('getStringValue() - uses model.toString() if available', function(assert) {
     this.Model.prototype.toString = function() {
         return 'foo!';
     }
 
     this.editor.setValue({ id: 1, name: 'foo' });
 
-    equal(this.editor.getStringValue(), 'foo!');
+    assert.equal(this.editor.getStringValue(), 'foo!');
 });
 
 

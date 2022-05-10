@@ -1,11 +1,11 @@
 ;(function(Form, Editor) {
 
-  module('Object', {
-    setup: function() {
+  QUnit.module('Object', {
+    beforeEach: function() {
         this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
         this.sinon.restore();
     }
   });
@@ -20,16 +20,16 @@
 
 
 
-  test('Default value', function() {
+  QUnit.test('Default value', function(assert) {
     var editor = new Editor({
       form: new Form(),
       schema: schema
     }).render();
 
-    deepEqual(editor.getValue(), { id: 0, name: '' });
+    assert.deepEqual(editor.getValue(), { id: 0, name: '' });
   });
 
-  test('Custom value', function() {
+  QUnit.test('Custom value', function(assert) {
     var editor = new Editor({
       form: new Form(),
       schema: schema,
@@ -39,10 +39,10 @@
       }
     }).render();
 
-    deepEqual(editor.getValue(), { id: 42, name: "Krieger" });
+    assert.deepEqual(editor.getValue(), { id: 42, name: "Krieger" });
   });
 
-  test('Value from model', function() {
+  QUnit.test('Value from model', function(assert) {
     var agency = new Backbone.Model({
       spy: {
         id: 28,
@@ -57,22 +57,22 @@
       key: 'spy'
     }).render();
 
-    deepEqual(editor.getValue(), { id: 28, name: 'Pam' });
+    assert.deepEqual(editor.getValue(), { id: 28, name: 'Pam' });
   });
 
-  test("TODO: idPrefix is added to child form elements", function() {
-    ok(1);
+  QUnit.test("TODO: idPrefix is added to child form elements", function(assert) {
+    assert.ok(1);
   });
 
-  test("TODO: remove() - Removes embedded form", function() {
-    ok(1);
+  QUnit.test("TODO: remove() - Removes embedded form", function(assert) {
+    assert.ok(1);
   });
 
-  test('TODO: uses the nestededitor template, unless overridden in editor schema', function() {
-    ok(1);
+  QUnit.test('TODO: uses the nestededitor template, unless overridden in editor schema', function(assert) {
+    assert.ok(1);
   });
 
-  test("setValue() - updates the input value", function() {
+  QUnit.test("setValue() - updates the input value", function(assert) {
     var editor = new Editor({
       form: new Form(),
       schema: schema,
@@ -89,10 +89,10 @@
 
     editor.setValue(newValue);
 
-    deepEqual(editor.getValue(), newValue);
+    assert.deepEqual(editor.getValue(), newValue);
   });
 
-  test('validate() - returns validation errors', function() {
+  QUnit.test('validate() - returns validation errors', function(assert) {
     var schema = {
       validators: [function a(a,b) { return {modelCheck:true}}]
     };
@@ -113,12 +113,12 @@
 
     var errs = editor.validate();
 
-    equal(errs.id.type, 'required');
-    equal(errs.email.type, 'email');
-    equal(errs.modelCheck, true);
+    assert.equal(errs.id.type, 'required');
+    assert.equal(errs.email.type, 'email');
+    assert.equal(errs.modelCheck, true);
   });
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
     var old$ = window.$,
       exceptionCaught = false;
 
@@ -135,11 +135,11 @@
 
     window.$ = old$;
 
-    ok(!exceptionCaught, ' using global \'$\' to render');
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
-  module('Object events', {
-    setup: function() {
+  QUnit.module('Object events', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor({
@@ -150,23 +150,23 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test("focus() - gives focus to editor and its form", function() {
+  QUnit.test("focus() - gives focus to editor and its form", function(assert) {
     var editor = this.editor;
 
     editor.focus();
 
-    ok(editor.hasFocus);
-    ok(editor.nestedForm.hasFocus);
+    assert.ok(editor.hasFocus);
+    assert.ok(editor.nestedForm.hasFocus);
   });
 
-  test("focus() - triggers the 'focus' event", function() {
+  QUnit.test("focus() - triggers the 'focus' event", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -175,27 +175,30 @@
 
     editor.focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("blur() - removes focus from the editor and its form", function() {
+  QUnit.test("blur() - removes focus from the editor and its form", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      ok(!editor.hasFocus);
-      ok(!editor.nestedForm.hasFocus);
+      assert.ok(!editor.hasFocus);
+      assert.ok(!editor.nestedForm.hasFocus);
 
-      start();
+      done();
     }, 0);
   });
 
-  test("blur() - triggers the 'blur' event", function() {
+  QUnit.test("blur() - triggers the 'blur' event", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
@@ -206,16 +209,15 @@
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
-      start();
+      done()
     }, 0);
   });
 
-  test("'change' event - bubbles up from the form", function() {
+  QUnit.test("'change' event - bubbles up from the form", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -224,11 +226,11 @@
 
     editor.nestedForm.trigger('change', editor.nestedForm);
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("'focus' event - bubbles up from the form when editor doesn't have focus", function() {
+  QUnit.test("'focus' event - bubbles up from the form when editor doesn't have focus", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -237,11 +239,11 @@
 
     editor.nestedForm.focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("'focus' event - doesn't bubble up from the editor when editor already has focus", function() {
+  QUnit.test("'focus' event - doesn't bubble up from the editor when editor already has focus", function(assert) {
     var editor = this.editor;
 
     editor.focus();
@@ -252,10 +254,12 @@
 
     editor.nestedForm.focus();
 
-    ok(!spy.called);
+    assert.ok(!spy.called);
   });
 
-  test("'blur' event - bubbles up from the form when editor has focus", function() {
+  QUnit.test("'blur' event - bubbles up from the form when editor has focus", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
@@ -266,16 +270,17 @@
 
     editor.nestedForm.blur();
 
-    stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
-      start();
+      done();
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from the form when editor doesn't have focus", function() {
+  QUnit.test("'blur' event - doesn't bubble up from the form when editor doesn't have focus", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -284,15 +289,14 @@
 
     editor.nestedForm.blur();
 
-    stop();
     setTimeout(function() {
-      ok(!spy.called);
+      assert.ok(!spy.called);
 
-      start();
+      done();
     }, 0);
   });
 
-  test("Events bubbling up from the form", function() {
+  QUnit.test("Events bubbling up from the form", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -301,8 +305,8 @@
 
     editor.nestedForm.trigger('whatever', editor.nestedForm);
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
 })(Backbone.Form, Backbone.Form.editors.Object);

@@ -3,17 +3,17 @@
 var same = deepEqual;
 
 
-module('Field#initialize', {
-  setup: function() {
+QUnit.module('Field#initialize', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('overrides defaults', function() {
+QUnit.test('overrides defaults', function(assert) {
   var options = {
     key: 'title',
     template: _.template('<b></b>'),
@@ -26,7 +26,7 @@ test('overrides defaults', function() {
   same(field.errorClassName, 'ERR');
 });
 
-test('stores important options', function() {
+QUnit.test('stores important options', function(assert) {
   var options = {
     key: 'foo',
     form: new Form(),
@@ -44,7 +44,7 @@ test('stores important options', function() {
   same(field.idPrefix, options.idPrefix);
 });
 
-test('creates the schema', function() {
+QUnit.test('creates the schema', function(assert) {
   this.sinon.spy(Field.prototype, 'createSchema');
 
   var options = {
@@ -60,7 +60,7 @@ test('creates the schema', function() {
   same(field.schema.title, 'Title');
 });
 
-test('creates the editor', function() {
+QUnit.test('creates the editor', function(assert) {
   this.sinon.spy(Field.prototype, 'createEditor');
 
   var field = new Field({
@@ -72,7 +72,7 @@ test('creates the editor', function() {
   same(field.editor instanceof Form.editors.Text, true);
 });
 
-test('first, uses template defined in options', function() {
+QUnit.test('first, uses template defined in options', function(assert) {
   var optionsTemplate = _.template('<div class="options" data-editor></div>'),
       schemaTemplate = _.template('<div class="schema" data-editor></div>'),
       protoTemplate = _.template('<div class="prototype" data-editor></div>'),
@@ -93,7 +93,7 @@ test('first, uses template defined in options', function() {
   same(field.template, optionsTemplate);
 });
 
-test('second, uses template defined in schema', function() {
+QUnit.test('second, uses template defined in schema', function(assert) {
   var schemaTemplate = _.template('<div class="schema" data-editor></div>'),
       protoTemplate = _.template('<div class="prototype" data-editor></div>'),
       constructorTemplate = _.template('<div class="constructor" data-editor></div>');
@@ -112,7 +112,7 @@ test('second, uses template defined in schema', function() {
   same(field.template, schemaTemplate);
 });
 
-test('third, uses template defined on prototype', function() {
+QUnit.test('third, uses template defined on prototype', function(assert) {
   var protoTemplate = _.template('<div class="prototype" data-editor></div>'),
       constructorTemplate = _.template('<div class="constructor" data-editor></div>');
 
@@ -130,7 +130,7 @@ test('third, uses template defined on prototype', function() {
   same(field.template, protoTemplate);
 });
 
-test('fourth, uses template defined on constructor', function() {
+QUnit.test('fourth, uses template defined on constructor', function(assert) {
   var constructorTemplate = _.template('<div class="constructor" data-editor></div>');
 
   var CustomField = Field.extend({
@@ -146,7 +146,7 @@ test('fourth, uses template defined on constructor', function() {
   same(field.template, constructorTemplate);
 });
 
-test('Uses Backbone.$ not global', function() {
+QUnit.test('Uses Backbone.$ not global', function(assert) {
   var old$ = window.$,
     exceptionCaught = false;
 
@@ -165,12 +165,12 @@ test('Uses Backbone.$ not global', function() {
 
   window.$ = old$;
 
-  ok(!exceptionCaught, ' using global \'$\' to render');
+  assert.ok(!exceptionCaught, ' using global \'$\' to render');
 });
 
-module('Field#createSchema');
+QUnit.module('Field#createSchema');
 
-test('converts strings to full schemas', function() {
+QUnit.test('converts strings to full schemas', function(assert) {
   var field = new Field({ key: 'title' });
 
   var schema = field.createSchema('Text');
@@ -179,7 +179,7 @@ test('converts strings to full schemas', function() {
   same(schema.title, 'Title');
 });
 
-test('applies defaults', function() {
+QUnit.test('applies defaults', function(assert) {
   var field = new Field({ key: 'age' });
 
   var schema = field.createSchema({ type: 'Number' });
@@ -190,17 +190,17 @@ test('applies defaults', function() {
 
 
 
-module('Field#createEditor', {
-  setup: function() {
+QUnit.module('Field#createEditor', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates a new instance of the Editor defined in the schema', function() {
+QUnit.test('creates a new instance of the Editor defined in the schema', function(assert) {
   var field = new Field({
     key: 'password',
     schema: { type: 'Password' },
@@ -229,9 +229,9 @@ test('creates a new instance of the Editor defined in the schema', function() {
 
 
 
-module('Field#createEditorId');
+QUnit.module('Field#createEditorId');
 
-test('uses idPrefix if defined', function() {
+QUnit.test('uses idPrefix if defined', function(assert) {
   var stringPrefixField = new Field({
     idPrefix: 'foo_',
     key: 'name'
@@ -245,7 +245,7 @@ test('uses idPrefix if defined', function() {
   same(numberPrefixField.createEditorId(), '123name');
 });
 
-test('adds no prefix if idPrefix is null', function() {
+QUnit.test('adds no prefix if idPrefix is null', function(assert) {
   var field = new Field({
     idPrefix: null,
     key: 'name'
@@ -254,7 +254,7 @@ test('adds no prefix if idPrefix is null', function() {
   same(field.createEditorId(), 'name');
 });
 
-test('uses model cid if no idPrefix is set', function() {
+QUnit.test('uses model cid if no idPrefix is set', function(assert) {
   var model = new Backbone.Model();
   model.cid = 'foo';
 
@@ -266,7 +266,7 @@ test('uses model cid if no idPrefix is set', function() {
   same(field.createEditorId(), 'foo_name');
 });
 
-test('adds no prefix if idPrefix is null and there is no model', function() {
+QUnit.test('adds no prefix if idPrefix is null and there is no model', function(assert) {
   var field = new Field({
     key: 'name'
   });
@@ -274,7 +274,7 @@ test('adds no prefix if idPrefix is null and there is no model', function() {
   same(field.createEditorId(), 'name');
 });
 
-test('replaces periods with underscores', function() {
+QUnit.test('replaces periods with underscores', function(assert) {
   var field = new Field({
     key: 'user.name.first'
   });
@@ -284,9 +284,9 @@ test('replaces periods with underscores', function() {
 
 
 
-module('Field#createTitle');
+QUnit.module('Field#createTitle');
 
-test('Transforms camelCased string to words', function() {
+QUnit.test('Transforms camelCased string to words', function(assert) {
   var field = new Field({ key: 'camelCasedString' });
 
   same(field.createTitle(), 'Camel Cased String');
@@ -294,9 +294,9 @@ test('Transforms camelCased string to words', function() {
 
 
 
-module('Field#templateData');
+QUnit.module('Field#templateData');
 
-test('returns schema and template data', function() {
+QUnit.test('returns schema and template data', function(assert) {
   var field = new Field({
     key: 'author',
     schema: { type: 'Text', help: 'Help!' }
@@ -312,22 +312,22 @@ test('returns schema and template data', function() {
 
 
 
-module('Field#render', {
-  setup: function() {
+QUnit.module('Field#render', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
-    this.sinon.stub(Form.editors.Text.prototype, 'render', function() {
+    this.sinon.stub(Form.editors.Text.prototype, 'render', function(assert) {
       this.setElement($('<input class="'+this.key+'" />'));
       return this;
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('only renders the editor if noField property is true', function() {
+QUnit.test('only renders the editor if noField property is true', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { type: 'Hidden' }
@@ -336,7 +336,7 @@ test('only renders the editor if noField property is true', function() {
   same(field.$el.prop('tagName'), 'INPUT');
 });
 
-test('returns self', function() {
+QUnit.test('returns self', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { type: 'Text' },
@@ -348,7 +348,7 @@ test('returns self', function() {
   same(returnedValue, field);
 });
 
-test('with data-editor and data-error placeholders', function() {
+QUnit.test('with data-editor and data-error placeholders', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { type: 'Text' },
@@ -360,17 +360,17 @@ test('with data-editor and data-error placeholders', function() {
 
 
 
-module('Field#validate', {
-  setup: function() {
+QUnit.module('Field#validate', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('calls setError if validation fails', 4, function() {
+QUnit.test('calls setError if validation fails', 4, function() {
   var field = new Field({
     key: 'title',
     schema: { validators: ['required'] }
@@ -390,7 +390,7 @@ test('calls setError if validation fails', 4, function() {
   same(err.message, 'Required');
 });
 
-test('calls clearError if validation passes', 1, function() {
+QUnit.test('calls clearError if validation passes', 1, function() {
   var field = new Field({
     key: 'title',
     schema: { validators: ['required'] }
@@ -412,9 +412,9 @@ test('calls clearError if validation passes', 1, function() {
 
 
 
-module('Field#setError');
+QUnit.module('Field#setError');
 
-test('exits if field hasNestedForm', function() {
+QUnit.test('exits if field hasNestedForm', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.errorClassName = 'error';
@@ -426,7 +426,7 @@ test('exits if field hasNestedForm', function() {
   same(field.$el.hasClass('error'), false);
 });
 
-test('adds error CSS class to field element', function() {
+QUnit.test('adds error CSS class to field element', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.errorClassName = 'ERR';
@@ -437,7 +437,7 @@ test('adds error CSS class to field element', function() {
   same(field.$el.hasClass('ERR'), true);
 });
 
-test('adds error message to data-error placeholder', function() {
+QUnit.test('adds error message to data-error placeholder', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.render();
@@ -448,9 +448,9 @@ test('adds error message to data-error placeholder', function() {
 
 
 
-module('Field#clearError');
+QUnit.module('Field#clearError');
 
-test('removes the error CSS class from field element', function() {
+QUnit.test('removes the error CSS class from field element', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.errorClassName = 'ERR';
@@ -466,7 +466,7 @@ test('removes the error CSS class from field element', function() {
   same(field.$el.hasClass('ERR'), false);
 });
 
-test('removes error message from data-error placeholder', function() {
+QUnit.test('removes error message from data-error placeholder', function(assert) {
   var field = new Field({ key: 'title' });
 
   //Set error
@@ -482,17 +482,17 @@ test('removes error message from data-error placeholder', function() {
 
 
 
-module('Field#commit', {
-  setup: function() {
+QUnit.module('Field#commit', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls editor commit', function() {
+QUnit.test('Calls editor commit', function(assert) {
   var field = new Field({
     key: 'title',
     model: new Backbone.Model()
@@ -505,13 +505,13 @@ test('Calls editor commit', function() {
   same(field.editor.commit.callCount, 1);
 });
 
-test('Returns error from validation', function() {
+QUnit.test('Returns error from validation', function(assert) {
   var field = new Field({
     key: 'title',
     model: new Backbone.Model()
   });
 
-  this.sinon.stub(field.editor, 'commit', function() {
+  this.sinon.stub(field.editor, 'commit', function(assert) {
     return { type: 'required' }
   });
 
@@ -522,17 +522,17 @@ test('Returns error from validation', function() {
 
 
 
-module('Field#getValue', {
-  setup: function() {
+QUnit.module('Field#getValue', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Returns the value from the editor', function() {
+QUnit.test('Returns the value from the editor', function(assert) {
     var field = new Field({
       value: 'The Title',
       key: 'title'
@@ -548,17 +548,17 @@ test('Returns the value from the editor', function() {
 
 
 
-module('Field#setValue', {
-  setup: function() {
+QUnit.module('Field#setValue', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Passes the new value to the editor', function() {
+QUnit.test('Passes the new value to the editor', function(assert) {
     var field = new Field({ key: 'title' });
 
     this.sinon.spy(field.editor, 'setValue');
@@ -571,17 +571,17 @@ test('Passes the new value to the editor', function() {
 
 
 
-module('Field#focus', {
-  setup: function() {
+QUnit.module('Field#focus', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls focus on editor', function() {
+QUnit.test('Calls focus on editor', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(field.editor, 'focus');
@@ -593,17 +593,17 @@ test('Calls focus on editor', function() {
 
 
 
-module('Field#blur', {
-  setup: function() {
+QUnit.module('Field#blur', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls focus on editor', function() {
+QUnit.test('Calls focus on editor', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(field.editor, 'blur');
@@ -615,17 +615,17 @@ test('Calls focus on editor', function() {
 
 
 
-module('Field#disable', {
-  setup: function() {
+QUnit.module('Field#disable', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls disable on editor if method exists', function() {
+QUnit.test('Calls disable on editor if method exists', function(assert) {
   Form.editors.Disabler = Form.editors.Text.extend({
     disable: function(){}
   });
@@ -641,7 +641,7 @@ test('Calls disable on editor if method exists', function() {
   same(field.editor.disable.callCount, 1);
 });
 
-test('If disable method does not exist on editor, disable all inputs inside it', function() {
+QUnit.test('If disable method does not exist on editor, disable all inputs inside it', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.render();
@@ -651,7 +651,7 @@ test('If disable method does not exist on editor, disable all inputs inside it',
   same(field.$(":input").is(":disabled"),true);
 });
 
-test('Will disable all inputs inside editor by default', function() {
+QUnit.test('Will disable all inputs inside editor by default', function(assert) {
   var field = new Field({ key: 'title',
     schema: {
       type: 'DateTime',
@@ -667,17 +667,17 @@ test('Will disable all inputs inside editor by default', function() {
   same(field.$("input").is(":disabled"),true);
 });
 
-module('Field#enable', {
-  setup: function() {
+QUnit.module('Field#enable', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls enable on editor if method exists', function() {
+QUnit.test('Calls enable on editor if method exists', function(assert) {
   Form.editors.Enabler = Form.editors.Text.extend({
     enable: function(){}
   });
@@ -693,7 +693,7 @@ test('Calls enable on editor if method exists', function() {
   same(field.editor.enable.callCount, 1);
 });
 
-test('If enable method does not exist on editor, enable all inputs inside it', function() {
+QUnit.test('If enable method does not exist on editor, enable all inputs inside it', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.$(":input").attr("disabled",true);
@@ -705,7 +705,7 @@ test('If enable method does not exist on editor, enable all inputs inside it', f
   same(field.$(":input").is(":disabled"),false);
 });
 
-test('Will enable all inputs inside editor by default', function() {
+QUnit.test('Will enable all inputs inside editor by default', function(assert) {
   var field = new Field({ key: 'title',
     schema: {
       type: 'DateTime',
@@ -726,17 +726,17 @@ test('Will enable all inputs inside editor by default', function() {
 
 
 
-module('Field#remove', {
-  setup: function() {
+QUnit.module('Field#remove', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Removes the editor', function() {
+QUnit.test('Removes the editor', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(field.editor, 'remove');
@@ -746,7 +746,7 @@ test('Removes the editor', function() {
   same(field.editor.remove.callCount, 1);
 });
 
-test('Removes self', function() {
+QUnit.test('Removes self', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(Backbone.View.prototype, 'remove');
@@ -759,9 +759,9 @@ test('Removes self', function() {
 
 
 
-module('Field#escape title text');
+QUnit.module('Field#escape title text');
 
-test('Title HTML gets escaped by default', function() {
+QUnit.test('Title HTML gets escaped by default', function(assert) {
   var field = new Field({
     key: 'XSS',
     schema: {
@@ -773,7 +773,7 @@ test('Title HTML gets escaped by default', function() {
   same( field.$('label').html(), '              \"/&gt;&lt;script&gt;throw(\"XSS Success\");&lt;/script&gt;            ' );
 });
 
-test('TitleHTML property can be set to true to allow HTML through', function() {
+QUnit.test('TitleHTML property can be set to true to allow HTML through', function(assert) {
   var field = new Field({
     key: 'XSS',
     schema: {

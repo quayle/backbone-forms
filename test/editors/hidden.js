@@ -1,31 +1,31 @@
 ;(function(Form, Editor) {
 
-  module('Hidden');
+  QUnit.module('Hidden');
 
   var same = deepEqual;
 
 
-  module('Hidden#initialize');
+  QUnit.module('Hidden#initialize');
 
-  test('sets input type', function() {
+  QUnit.test('sets input type', function(assert) {
     var editor = new Editor();
 
     same(editor.$el.attr('type'), 'hidden');
   });
 
-  test('Default value', function() {
+  QUnit.test('Default value', function(assert) {
     var editor = new Editor().render();
 
-    equal(editor.getValue(), '');
+    assert.equal(editor.getValue(), '');
   });
 
-  test('sets noField property so that the wrapping field is not rendered', function() {
+  QUnit.test('sets noField property so that the wrapping field is not rendered', function(assert) {
     var editor = new Editor();
 
     same(editor.noField, true);
   });
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
       var old$ = window.$,
         exceptionCaught = false;
 
@@ -41,7 +41,7 @@
 
       window.$ = old$;
 
-      ok(!exceptionCaught, ' using global \'$\' to render');
+      assert.ok(!exceptionCaught, ' using global \'$\' to render');
     });
 
 })(Backbone.Form, Backbone.Form.editors.Hidden);

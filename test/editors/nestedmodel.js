@@ -1,6 +1,6 @@
 ;(function(Form, Editor) {
 
-  module('NestedModel');
+  QUnit.module('NestedModel');
 
 
   var same = deepEqual;
@@ -20,16 +20,16 @@
 
 
 
-  test('Default value', function() {
+  QUnit.test('Default value', function(assert) {
     var editor = new Editor({
       form: new Form(),
       schema: schema
     }).render();
 
-    deepEqual(editor.getValue(), { id: 8, name: 'Marklar' });
+    assert.deepEqual(editor.getValue(), { id: 8, name: 'Marklar' });
   });
 
-  test('Custom value', function() {
+  QUnit.test('Custom value', function(assert) {
     var editor = new Editor({
       form: new Form(),
       schema: schema,
@@ -39,10 +39,10 @@
       }
     }).render();
 
-    deepEqual(editor.getValue(), { id: 42, name: "Krieger" });
+    assert.deepEqual(editor.getValue(), { id: 42, name: "Krieger" });
   });
 
-  test('Custom value overrides default value (issue #99)', function() {
+  QUnit.test('Custom value overrides default value (issue #99)', function(assert) {
     var Person = Backbone.Model.extend({
       schema: { firstName: 'Text', lastName: 'Text' },
       defaults: { firstName: '', lastName: '' }
@@ -74,7 +74,7 @@
     });
   });
 
-  test('Value from model', function() {
+  QUnit.test('Value from model', function(assert) {
     var agency = new Backbone.Model({
       spy: {
         id: 28,
@@ -89,26 +89,26 @@
       key: 'spy'
     }).render();
 
-    deepEqual(editor.getValue(), { id: 28, name: 'Pam' });
+    assert.deepEqual(editor.getValue(), { id: 28, name: 'Pam' });
   });
 
-  test("TODO: idPrefix is added to child form elements", function() {
-    ok(1);
+  QUnit.test("TODO: idPrefix is added to child form elements", function() {
+    assert.ok(1);
   });
 
-  test("TODO: Validation on nested model", function() {
-    ok(1);
+  QUnit.test("TODO: Validation on nested model", function() {
+    assert.ok(1);
   });
 
-  test('TODO: uses the nestededitor template, unless overridden in editor schema', function() {
-    ok(1);
+  QUnit.test('TODO: uses the nestededitor template, unless overridden in editor schema', function(assert) {
+    assert.ok(1);
   });
 
-  test("TODO: remove() - Removes embedded form", function() {
-    ok(1);
+  QUnit.test("TODO: remove() - Removes embedded form", function() {
+    assert.ok(1);
   });
 
-  test("setValue() - updates the input value", function() {
+  QUnit.test("setValue() - updates the input value", function() {
     var agency = new Backbone.Model({
       spy: {
         id: 28,
@@ -130,7 +130,7 @@
 
     editor.setValue(newValue);
 
-    deepEqual(editor.getValue(), newValue);
+    assert.deepEqual(editor.getValue(), newValue);
   });
 
 })(Backbone.Form, Backbone.Form.editors.NestedModel);

@@ -1,26 +1,26 @@
 ;(function(Form, Editor) {
 
-  module('TextArea');
+  QUnit.module('TextArea');
 
   var same = deepEqual;
 
 
-  module('TextArea#initialize');
+  QUnit.module('TextArea#initialize');
 
-  test('sets tag type', function() {
+  QUnit.test('sets tag type', function(assert) {
     var editor = new Editor();
 
-    ok(editor.$el.is('textarea'));
+    assert.ok(editor.$el.is('textarea'));
   });
 
-  test('does not set type attribute', function() {
+  QUnit.test('does not set type attribute', function(assert) {
     var editor = new Editor();
 
     same(editor.$el.attr('type'), undefined);
   });
 
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
     var old$ = window.$,
       exceptionCaught = false;
 
@@ -36,7 +36,7 @@
 
     window.$ = old$;
 
-    ok(!exceptionCaught, ' using global \'$\' to render');
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
 

@@ -1,11 +1,11 @@
 ;(function(Form, Editor) {
 
-  module('Radio', {
-    setup: function() {
+  QUnit.module('Radio', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
     }
   });
@@ -18,7 +18,7 @@
 
 
 
-  test('Options as array of objects', function() {
+  QUnit.test('Options as array of objects', function(assert) {
     var editor = new Editor({
       schema: {
         options: [
@@ -41,57 +41,57 @@
     var radios = editor.$el.find("input[type=radio]");
     var labels = editor.$el.find("label");
 
-    equal(radios.length, 3);
-    equal(radios.length, labels.length);
+    assert.equal(radios.length, 3);
+    assert.equal(radios.length, labels.length);
 
-    equal(labels.first().html(), "Option 1");
-    equal(labels.last().html(), "Option 3");
+    assert.equal(labels.first().html(), "Option 1");
+    assert.equal(labels.last().html(), "Option 3");
 
-    equal(radios.first().val(), "0");
-    equal(radios.last().val(), "2");
+    assert.equal(radios.first().val(), "0");
+    assert.equal(radios.last().val(), "2");
   });
 
-  test('Default value', function() {
+  QUnit.test('Default value', function(assert) {
     var editor = new Editor({
       schema: schema
     }).render();
 
-    equal(editor.getValue(), undefined);
+    assert.equal(editor.getValue(), undefined);
   });
 
-  test('Custom value', function() {
+  QUnit.test('Custom value', function(assert) {
     var editor = new Editor({
       value: 'Cyril',
       schema: schema
     }).render();
 
-    equal(editor.getValue(), 'Cyril');
+    assert.equal(editor.getValue(), 'Cyril');
   });
 
-  test('Throws errors if no options', function () {
+  QUnit.test('Throws errors if no options', function () {
     throws(function () {
       var editor = new Editor({schema: {}});
     }, /Missing required/, 'ERROR: Accepted a new Radio editor with no options.');
   });
 
-  test('Value from model', function() {
+  QUnit.test('Value from model', function(assert) {
     var editor = new Editor({
       model: new Backbone.Model({ name: 'Lana' }),
       key: 'name',
       schema: schema
     }).render();
-    equal(editor.getValue(), 'Lana');
+    assert.equal(editor.getValue(), 'Lana');
   });
 
-  test('Correct type', function() {
+  QUnit.test('Correct type', function(assert) {
     var editor = new Editor({
       schema: schema
     }).render();
-    equal($(editor.el).get(0).tagName, 'UL');
+    assert.equal($(editor.el).get(0).tagName, 'UL');
     notEqual($(editor.el).find('input[type=radio]').length, 0);
   });
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
     var old$ = window.$,
       exceptionCaught = false;
 
@@ -107,33 +107,33 @@
 
     window.$ = old$;
 
-    ok(!exceptionCaught, ' using global \'$\' to render');
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
-  module('#getTemplate()');
+  QUnit.module('#getTemplate()');
 
-  test('returns schema template first', function() {
+  QUnit.test('returns schema template first', function(assert) {
     var template = _.template('<div>');
 
     var editor = new Editor({
       schema: { template: template, options: [] }
     });
 
-    equal(editor.getTemplate(), template);
+    assert.equal(editor.getTemplate(), template);
   });
 
-  test('then constructor template', function() {
+  QUnit.test('then constructor template', function(assert) {
     var editor = new Editor({
       schema: { options: [] }
     });
 
-    equal(editor.getTemplate(), Editor.template);
+    assert.equal(editor.getTemplate(), Editor.template);
   });
 
 
 
-  module('Radio events', {
-    setup: function() {
+  QUnit.module('Radio events', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor({
@@ -143,20 +143,20 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test("focus() - gives focus to editor and its first radiobutton when no radiobutton is checked", function() {
+  QUnit.test("focus() - gives focus to editor and its first radiobutton when no radiobutton is checked", function() {
     var editor = this.editor;
 
     editor.focus();
 
-    ok(editor.hasFocus);
-    ok(editor.$('input[type=radio]').first().is(':focus'));
+    assert.ok(editor.hasFocus);
+    assert.ok(editor.$('input[type=radio]').first().is(':focus'));
 
     editor.blur();
 
@@ -166,15 +166,15 @@
     }, 0);
   });
 
-  test("focus() - gives focus to editor and its checked radiobutton when a radiobutton is checked", function() {
+  QUnit.test("focus() - gives focus to editor and its checked radiobutton when a radiobutton is checked", function() {
     var editor = this.editor;
 
     editor.$('input[type=radio]').val([editor.$('input[type=radio]').eq(1).val()]);
 
     editor.focus();
 
-    ok(editor.hasFocus);
-    ok(editor.$('input[type=radio]').eq(1).is(':focus'));
+    assert.ok(editor.hasFocus);
+    assert.ok(editor.$('input[type=radio]').eq(1).is(':focus'));
 
     editor.$('input[type=radio]').val([null]);
 
@@ -186,7 +186,7 @@
     }, 0);
   });
 
-  test("focus() - triggers the 'focus' event", function() {
+  QUnit.test("focus() - triggers the 'focus' event", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -197,8 +197,8 @@
 
     stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
       editor.blur();
 
@@ -208,7 +208,7 @@
     }, 0);
   });
 
-  test("blur() - removes focus from the editor and its focused radiobutton", function() {
+  QUnit.test("blur() - removes focus from the editor and its focused radiobutton", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -217,14 +217,14 @@
 
     stop();
     setTimeout(function() {
-      ok(!editor.hasFocus);
-      ok(!editor.$('input[type=radio]').first().is(':focus'));
+      assert.ok(!editor.hasFocus);
+      assert.ok(!editor.$('input[type=radio]').first().is(':focus'));
 
       start();
     }, 0);
   });
 
-  test("blur() - triggers the 'blur' event", function() {
+  QUnit.test("blur() - triggers the 'blur' event", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -237,14 +237,14 @@
 
     stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
       start();
     }, 0);
   });
 
-  test("'change' event - is triggered when a non-checked radiobutton is clicked", function() {
+  QUnit.test("'change' event - is triggered when a non-checked radiobutton is clicked", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -253,13 +253,13 @@
 
     editor.$("input[type=radio]:not(:checked)").first().click();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
 
     editor.$("input[type=radio]").val([null]);
   });
 
-  test("'focus' event - bubbles up from radiobutton when editor doesn't have focus", function() {
+  QUnit.test("'focus' event - bubbles up from radiobutton when editor doesn't have focus", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -268,8 +268,8 @@
 
     editor.$("input[type=radio]").first().focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
 
     editor.blur();
 
@@ -279,7 +279,7 @@
     }, 0);
   });
 
-  test("'focus' event - doesn't bubble up from radiobutton when editor already has focus", function() {
+  QUnit.test("'focus' event - doesn't bubble up from radiobutton when editor already has focus", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -290,7 +290,7 @@
 
     editor.$("input[type=radio]").focus();
 
-    ok(!spy.called);
+    assert.ok(!spy.called);
 
     editor.blur();
 
@@ -300,7 +300,7 @@
     }, 0);
   });
 
-  test("'blur' event - bubbles up from radiobutton when editor has focus and we're not focusing on another one of the editor's radiobuttons", function() {
+  QUnit.test("'blur' event - bubbles up from radiobutton when editor has focus and we're not focusing on another one of the editor's radiobuttons", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -313,14 +313,14 @@
 
     stop();
     setTimeout(function() {
-        ok(spy.called);
-        ok(spy.calledWith(editor));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(editor));
 
         start();
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from radiobutton when editor has focus and we're focusing on another one of the editor's radiobuttons", function() {
+  QUnit.test("'blur' event - doesn't bubble up from radiobutton when editor has focus and we're focusing on another one of the editor's radiobuttons", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -334,7 +334,7 @@
 
     stop();
     setTimeout(function() {
-      ok(!spy.called);
+      assert.ok(!spy.called);
 
       editor.blur();
 
@@ -344,7 +344,7 @@
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from radiobutton when editor doesn't have focus", function() {
+  QUnit.test("'blur' event - doesn't bubble up from radiobutton when editor doesn't have focus", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -355,7 +355,7 @@
 
     stop();
     setTimeout(function() {
-      ok(!spy.called);
+      assert.ok(!spy.called);
 
       start();
     }, 0);
@@ -363,8 +363,8 @@
 
 
 
-  module('Radio Text Escaping', {
-    setup: function() {
+  QUnit.module('Radio Text Escaping', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.options = [
@@ -391,14 +391,14 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test('options array content gets properly escaped', function() {
+  QUnit.test('options array content gets properly escaped', function(assert) {
 
     var editor = this.editor;
     var options = this.options;
@@ -419,7 +419,7 @@
     });
   });
 
-  test('options object content gets properly escaped', function() {
+  QUnit.test('options object content gets properly escaped', function(assert) {
 
       var options = {
         key1: '><b>HTML</b><',
@@ -450,7 +450,7 @@
     });
   });
 
-  test('options labels can be labelHTML, which will not be escaped', function() {
+  QUnit.test('options labels can be labelHTML, which will not be escaped', function(assert) {
 
       var options = [
         {

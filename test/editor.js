@@ -3,9 +3,9 @@
 var same = deepEqual;
 
 
-module('Editor#initialize');
+QUnit.module('Editor#initialize');
 
-test('sets the value if using options.model', function() {
+QUnit.test('sets the value if using options.model', function(assert) {
   var model = new Backbone.Model({
     name: 'John'
   });
@@ -18,7 +18,7 @@ test('sets the value if using options.model', function() {
   same(editor.value, 'John');
 });
 
-test('uses options.value if options.model not specified', function() {
+QUnit.test('uses options.value if options.model not specified', function(assert) {
   var editor = new Editor({
     value: 'Hello'
   });
@@ -26,7 +26,7 @@ test('uses options.value if options.model not specified', function() {
   same(editor.value, 'Hello');
 });
 
-test('make sure value is not undefined if it is false', function() {
+QUnit.test('make sure value is not undefined if it is false', function(assert) {
   var editor = new Editor({
     value: false
   });
@@ -34,7 +34,7 @@ test('make sure value is not undefined if it is false', function() {
   same(editor.value, false);
 });
 
-test('sets to defaultValue if options.model and options.value are not set', function() {
+QUnit.test('sets to defaultValue if options.model and options.value are not set', function(assert) {
   var DefaultValueEditor = Editor.extend({
     defaultValue: 'defaultValue'
   });
@@ -44,13 +44,13 @@ test('sets to defaultValue if options.model and options.value are not set', func
   same(editor.value, 'defaultValue');
 });
 
-test('base Editor defaultValue is null if nothing else is set', function() {
+QUnit.test('base Editor defaultValue is null if nothing else is set', function(assert) {
   var editor = new Editor();
 
   same(editor.value, null);
 });
 
-test('stores important data', function() {
+QUnit.test('stores important data', function(assert) {
   var form = new Form(),
       schema = { type: 'Text', validators: ['required'] };
 
@@ -65,7 +65,7 @@ test('stores important data', function() {
   same(editor.schema, schema);
 });
 
-test('stores validators from options or schema', function() {
+QUnit.test('stores validators from options or schema', function(assert) {
   var editor = new Editor({
     validators: ['required']
   });
@@ -79,7 +79,7 @@ test('stores validators from options or schema', function() {
   same(editor2.validators, ['email']);
 });
 
-test('sets the "id" attribute on the element', function() {
+QUnit.test('sets the "id" attribute on the element', function(assert) {
   var editor = new Editor({
     id: 'foo'
   });
@@ -87,7 +87,7 @@ test('sets the "id" attribute on the element', function() {
   same(editor.$el.attr('id'), 'foo');
 });
 
-test('sets the "name" attribute on the element, if key is available', function() {
+QUnit.test('sets the "name" attribute on the element, if key is available', function(assert) {
   var editor = new Editor({
     key: 'title'
   });
@@ -95,18 +95,18 @@ test('sets the "name" attribute on the element, if key is available', function()
   same(editor.$el.attr('name'), 'title');
 });
 
-test('options.schema.editorClass - Adds class names to editor', function() {
+QUnit.test('options.schema.editorClass - Adds class names to editor', function(assert) {
   var editor = new Editor({
     schema: { editorClass: 'foo bar' }
   });
 
   var $el = editor.$el;
 
-  ok($el.hasClass('foo'), 'Adds first defined class');
-  ok($el.hasClass('bar'), 'Adds other defined class');
+  assert.ok($el.hasClass('foo'), 'Adds first defined class');
+  assert.ok($el.hasClass('bar'), 'Adds other defined class');
 });
 
-test('options.schema.editorAttrs option - Adds custom attributes', function() {
+QUnit.test('options.schema.editorAttrs option - Adds custom attributes', function(assert) {
   var editor = new Editor({
     schema: {
       editorAttrs: {
@@ -125,7 +125,7 @@ test('options.schema.editorAttrs option - Adds custom attributes', function() {
 });
 
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
     var old$ = window.$,
       exceptionCaught = false;
 
@@ -141,13 +141,13 @@ test('options.schema.editorAttrs option - Adds custom attributes', function() {
 
     window.$ = old$;
 
-    ok(!exceptionCaught, ' using global \'$\' to render');
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
 
-module('Editor#getName');
+QUnit.module('Editor#getName');
 
-test('replaces periods with underscores', function() {
+QUnit.test('replaces periods with underscores', function(assert) {
   var editor = new Editor({
     key: 'user.name.first'
   });
@@ -157,9 +157,9 @@ test('replaces periods with underscores', function() {
 
 
 
-module('Editor#getValue');
+QUnit.module('Editor#getValue');
 
-test('returns editor value', function() {
+QUnit.test('returns editor value', function(assert) {
   var editor = new Editor({
     value: 'foo'
   });
@@ -169,9 +169,9 @@ test('returns editor value', function() {
 
 
 
-module('Editor#setValue');
+QUnit.module('Editor#setValue');
 
-test('sets editor value', function() {
+QUnit.test('sets editor value', function(assert) {
   var editor = new Editor({
     value: 'foo'
   });
@@ -183,24 +183,24 @@ test('sets editor value', function() {
 
 
 
-module('Editor#commit', {
-  setup: function() {
+QUnit.module('Editor#commit', {
+  beforeEach: function() {
     var self = this;
 
     this.sinon = sinon.sandbox.create();
 
     this.validationErr = null;
-    this.sinon.stub(Editor.prototype, 'validate', function() {
+    this.sinon.stub(Editor.prototype, 'validate', function(assert) {
       return self.validationErr;
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('returns validation errors', function() {
+QUnit.test('returns validation errors', function(assert) {
   var editor = new Editor();
 
   this.validationErr = { type: 'required' };
@@ -208,7 +208,7 @@ test('returns validation errors', function() {
   same(editor.commit(), this.validationErr);
 });
 
-test('returns model validation errors if options.validate is true', function() {
+QUnit.test('returns model validation errors if options.validate is true', function(assert) {
   var model = new Backbone.Model();
 
   model.validate = function() {
@@ -223,7 +223,7 @@ test('returns model validation errors if options.validate is true', function() {
   same(editor.commit({ validate: true }), 'ERROR');
 });
 
-test('sets value to model', function() {
+QUnit.test('sets value to model', function(assert) {
   var model = new Backbone.Model();
 
   var editor = new Editor({
@@ -240,9 +240,9 @@ test('sets value to model', function() {
 
 
 
-module('Editor#validate');
+QUnit.module('Editor#validate');
 
-test('returns validation errors', function() {
+QUnit.test('returns validation errors', function(assert) {
   var editor = new Editor({
     validators: ['required']
   });
@@ -253,7 +253,7 @@ test('returns validation errors', function() {
   same(err.message, 'Required');
 });
 
-test('returns undefined if no errors', function() {
+QUnit.test('returns undefined if no errors', function(assert) {
   var editor = new Editor({
     validators: ['required'],
     value: 'ok'
@@ -266,9 +266,9 @@ test('returns undefined if no errors', function() {
 
 
 
-module('Editor#trigger');
+QUnit.module('Editor#trigger');
 
-test('sets hasFocus to true on focus event', function() {
+QUnit.test('sets hasFocus to true on focus event', function(assert) {
   var editor = new Editor();
 
   editor.hasFocus = false;
@@ -278,7 +278,7 @@ test('sets hasFocus to true on focus event', function() {
   same(editor.hasFocus, true);
 });
 
-test('sets hasFocus to false on blur event', function() {
+QUnit.test('sets hasFocus to false on blur event', function(assert) {
   var editor = new Editor();
 
   editor.hasFocus = true;
@@ -290,71 +290,71 @@ test('sets hasFocus to false on blur event', function() {
 
 
 
-module('Editor#getValidator');
+QUnit.module('Editor#getValidator');
 
-test('Given a string, a bundled validator is returned', function() {
+QUnit.test('Given a string, a bundled validator is returned', function(assert) {
   var editor = new Editor();
 
   var required = editor.getValidator('required'),
       email = editor.getValidator('email');
 
-  equal(required(null).type, 'required');
-  equal(email('invalid').type, 'email');
+  assert.equal(required(null).type, 'required');
+  assert.equal(email('invalid').type, 'email');
 });
 
-test('Given a string, throws if the bundled validator is not found', 1, function() {
+QUnit.test('Given a string, throws if the bundled validator is not found', 1, function() {
   var editor = new Editor();
 
   try {
     editor.getValidator('unknown validator');
   } catch (e) {
-    equal(e.message, 'Validator "unknown validator" not found');
+    assert.equal(e.message, 'Validator "unknown validator" not found');
   }
 });
 
-test('Given an object, a customised bundled validator is returned', function() {
+QUnit.test('Given an object, a customised bundled validator is returned', function(assert) {
   var editor = new Editor();
 
   //Can customise error message
   var required = editor.getValidator({ type: 'required', message: 'Custom message' });
 
   var err = required('');
-  equal(err.type, 'required');
-  equal(err.message, 'Custom message');
+  assert.equal(err.type, 'required');
+  assert.equal(err.message, 'Custom message');
 
   //Can customise options on certain validators
   var regexp = editor.getValidator({ type: 'regexp', regexp: /foobar/, message: 'Must include "foobar"' });
 
   var err = regexp('invalid');
-  equal(err.type, 'regexp');
-  equal(err.message, 'Must include "foobar"');
+  assert.equal(err.type, 'regexp');
+  assert.equal(err.message, 'Must include "foobar"');
 });
 
-test('Given a regular expression, returns a regexp validator', function() {
+QUnit.test('Given a regular expression, returns a regexp validator', function(assert) {
   var editor = new Editor();
 
   var regexp = editor.getValidator(/hello/);
 
-  equal(regexp('invalid').type, 'regexp');
+  assert.equal(regexp('invalid').type, 'regexp');
 });
 
-test('Given a function, it is returned', function () {
+QUnit.test('Given a function, it is returned', function () {
   var editor = new Editor();
 
   var myValidator = function () { return; };
 
   var validator = editor.getValidator(myValidator);
 
-  equal(validator, myValidator);
+  assert.equal(validator, myValidator);
 });
 
-test('Given an unknown type, an error is thrown', 1, function () {
+QUnit.test('Given an unknown type, an error is thrown', 1, function () {
   var editor = new Editor();
 
   try {
     editor.getValidator(['array']);
   } catch (e) {
-    equal(e.message, 'Invalid validator: array');
+    assert.equal(e.message, 'Invalid validator: array');
   }
 });
 

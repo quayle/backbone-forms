@@ -3,17 +3,17 @@
 var same = deepEqual;
 
 
-module('Form#initialize', {
-  setup: function() {
+QUnit.module('Form#initialize', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('accepts an errorClassName in schema', function() {
+QUnit.test('accepts an errorClassName in schema', function(assert) {
   var form = new Form({
     schema: {
       name: {type: 'Text', errorClassName: 'custom-error'}
@@ -22,7 +22,7 @@ test('accepts an errorClassName in schema', function() {
   same(form.fields.name.errorClassName, 'custom-error')
 });
 
-test('prefers schema from options over model', function() {
+QUnit.test('prefers schema from options over model', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -37,7 +37,7 @@ test('prefers schema from options over model', function() {
   same(form.schema, schema);
 });
 
-test('prefers schema from options over model - when schema is a function', function() {
+QUnit.test('prefers schema from options over model - when schema is a function', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -54,7 +54,7 @@ test('prefers schema from options over model - when schema is a function', funct
   same(form.schema, schema());
 });
 
-test('uses schema from model if provided', function() {
+QUnit.test('uses schema from model if provided', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -66,7 +66,7 @@ test('uses schema from model if provided', function() {
   same(form.schema, model.schema);
 });
 
-test('uses fieldsets from model if provided', function() {
+QUnit.test('uses fieldsets from model if provided', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -80,7 +80,7 @@ test('uses fieldsets from model if provided', function() {
   same(form.fieldsets[0].schema, model.fieldsets[0]);
 });
 
-test('uses from model if provided - when schema is a function', function() {
+QUnit.test('uses from model if provided - when schema is a function', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = function() {
@@ -94,7 +94,7 @@ test('uses from model if provided - when schema is a function', function() {
   same(form.schema, model.schema());
 });
 
-test('stores important options', function() {
+QUnit.test('stores important options', function(assert) {
   var options = {
     model: new Backbone.Model(),
     data: { foo: 1 },
@@ -110,7 +110,7 @@ test('stores important options', function() {
   same(form.templateData, options.templateData);
 });
 
-test('overrides defaults', function() {
+QUnit.test('overrides defaults', function(assert) {
   var options = {
     template: _.template('<b></b>'),
     Fieldset: Form.Fieldset.extend(),
@@ -126,7 +126,7 @@ test('overrides defaults', function() {
   same(form.NestedField, options.NestedField);
 });
 
-test('prefers template stored on form prototype over one stored on class', function() {
+QUnit.test('prefers template stored on form prototype over one stored on class', function(assert) {
   var oldTemplate = Form.template;
 
   var newTemplate = _.template('<form><b data-fieldsets></b></div>');
@@ -140,7 +140,7 @@ test('prefers template stored on form prototype over one stored on class', funct
   delete Form.prototype.template;
 });
 
-test('uses template stored on form class', function() {
+QUnit.test('uses template stored on form class', function(assert) {
   var oldTemplate = Form.template;
 
   var newTemplate = _.template('<form><b data-fieldsets></b></div>');
@@ -154,7 +154,7 @@ test('uses template stored on form class', function() {
   Form.template = oldTemplate;
 });
 
-test('uses fieldset and field classes stored on prototype over those stored on form class', function() {
+QUnit.test('uses fieldset and field classes stored on prototype over those stored on form class', function(assert) {
   var DifferentField = function () {};
   var DifferentFieldset = function () {};
   var DifferentNestedField = function () {};
@@ -174,7 +174,7 @@ test('uses fieldset and field classes stored on prototype over those stored on f
   delete Form.prototype.NestedField;
 });
 
-test('uses fieldset and field classes stored on form class', function() {
+QUnit.test('uses fieldset and field classes stored on form class', function(assert) {
   var form = new Form();
 
   same(form.Fieldset, Form.Fieldset);
@@ -182,7 +182,7 @@ test('uses fieldset and field classes stored on form class', function() {
   same(form.NestedField, Form.NestedField);
 });
 
-test('sets selectedFields - with options.fields', function() {
+QUnit.test('sets selectedFields - with options.fields', function(assert) {
   var options = {
     fields: ['foo', 'bar']
   };
@@ -192,7 +192,7 @@ test('sets selectedFields - with options.fields', function() {
   same(form.selectedFields, options.fields);
 });
 
-test('sets selectedFields - defaults to using all fields in schema', function() {
+QUnit.test('sets selectedFields - defaults to using all fields in schema', function(assert) {
   var form = new Form({
     schema: { name: 'Text', age: 'Number' }
   });
@@ -200,7 +200,7 @@ test('sets selectedFields - defaults to using all fields in schema', function() 
   same(form.selectedFields, ['name', 'age']);
 });
 
-test('creates fields', function() {
+QUnit.test('creates fields', function(assert) {
   this.sinon.spy(Form.prototype, 'createField');
 
   var form = new Form({
@@ -226,7 +226,7 @@ test('creates fields', function() {
   same(schemaArg, { type: 'Number' });
 });
 
-test('creates fieldsets - first with "fieldsets" option', function() {
+QUnit.test('creates fieldsets - first with "fieldsets" option', function(assert) {
   this.sinon.spy(Form.prototype, 'createFieldset');
 
   var MyForm = Form.extend({
@@ -263,7 +263,7 @@ test('creates fieldsets - first with "fieldsets" option', function() {
   same(schemaArg, ['password']);
 });
 
-test('creates fieldsets - second with prototype.fieldsets', function() {
+QUnit.test('creates fieldsets - second with prototype.fieldsets', function(assert) {
   this.sinon.spy(Form.prototype, 'createFieldset');
 
   var MyForm = Form.extend({
@@ -290,7 +290,7 @@ test('creates fieldsets - second with prototype.fieldsets', function() {
   same(schemaArg, ['age', 'name']);
 });
 
-test('creates fieldsets - defaults to all fields in one fieldset', function() {
+QUnit.test('creates fieldsets - defaults to all fields in one fieldset', function(assert) {
   this.sinon.spy(Form.prototype, 'createFieldset');
 
   var form = new Form({
@@ -311,7 +311,7 @@ test('creates fieldsets - defaults to all fields in one fieldset', function() {
   same(schemaArg, ['name', 'age', 'password']);
 });
 
-test('submitButton option: missing - does not create button', function() {
+QUnit.test('submitButton option: missing - does not create button', function(assert) {
   var form = new Form({
     schema: { name: 'Text' }
   }).render();
@@ -321,7 +321,7 @@ test('submitButton option: missing - does not create button', function() {
   same($btn.length, 0);
 });
 
-test('submitButton option: false - does not create button', function() {
+QUnit.test('submitButton option: false - does not create button', function(assert) {
   var form = new Form({
     schema: { name: 'Text' },
     submitButton: false
@@ -332,7 +332,7 @@ test('submitButton option: false - does not create button', function() {
   same($btn.length, 0);
 });
 
-test('submitButton option: string - creates button with given text', function() {
+QUnit.test('submitButton option: string - creates button with given text', function(assert) {
   var form = new Form({
     schema: { name: 'Text' },
     submitButton: 'Next'
@@ -344,7 +344,7 @@ test('submitButton option: string - creates button with given text', function() 
   same($btn.html(), 'Next');
 });
 
-test('submitButton still rendered properly if _ templateSettings are changed', function() {
+QUnit.test('submitButton still rendered properly if _ templateSettings are changed', function(assert) {
     var oldSettings = _.templateSettings;
 
     _.templateSettings = {
@@ -367,7 +367,7 @@ test('submitButton still rendered properly if _ templateSettings are changed', f
   _.templateSettings = oldSettings;
 });
 
-test('Uses Backbone.$ not global', function() {
+QUnit.test('Uses Backbone.$ not global', function(assert) {
   var old$ = window.$,
     exceptionCaught = false;
 
@@ -384,13 +384,13 @@ test('Uses Backbone.$ not global', function() {
 
   window.$ = old$;
 
-  ok(!exceptionCaught, ' using global \'$\' to render');
+  assert.ok(!exceptionCaught, ' using global \'$\' to render');
 });
 
 
-module('Form#EditorValues');
+QUnit.module('Form#EditorValues');
 
-test('Form with editor with basic schema should return defaultValues', function() {
+QUnit.test('Form with editor with basic schema should return defaultValues', function(assert) {
   var form = new Form({
     schema: {
       name: {
@@ -403,7 +403,7 @@ test('Form with editor with basic schema should return defaultValues', function(
   same( form.getValue(), { name: "" } );
 });
 
-test('Form with model with defaults should return defaults', function() {
+QUnit.test('Form with model with defaults should return defaults', function(assert) {
   var model = Backbone.Model.extend({
     defaults: { name: "Default Name" }
   });
@@ -420,7 +420,7 @@ test('Form with model with defaults should return defaults', function() {
   same( form.getValue(), { name: "Default Name" } );
 });
 
-test('Form with data passed in should return data', function() {
+QUnit.test('Form with data passed in should return data', function(assert) {
   var form = new Form({
     schema: {
       name: {
@@ -434,7 +434,7 @@ test('Form with data passed in should return data', function() {
   same( form.getValue(), { name: "Default Name" } );
 });
 
-test('Form should not clobber defaultValue of Editors', function() {
+QUnit.test('Form should not clobber defaultValue of Editors', function(assert) {
   Form.editors.DefaultText = Form.editors.Text.extend({
     defaultValue: "Default Name"
   });
@@ -451,17 +451,17 @@ test('Form should not clobber defaultValue of Editors', function() {
 });
 
 
-module('Form#createFieldset', {
-  setup: function() {
+QUnit.module('Form#createFieldset', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates a new instance of the Fieldset defined on the form', function() {
+QUnit.test('creates a new instance of the Fieldset defined on the form', function(assert) {
   var MockFieldset = Backbone.View.extend();
 
   var form = new Form({
@@ -484,8 +484,8 @@ test('creates a new instance of the Fieldset defined on the form', function() {
 
 
 
-module('Form#createField', {
-  setup: function() {
+QUnit.module('Form#createField', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
     this.MockField = Backbone.View.extend({
@@ -493,12 +493,12 @@ module('Form#createField', {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates a new instance of the Field defined on the form - with model', function() {
+QUnit.test('creates a new instance of the Field defined on the form - with model', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -523,7 +523,7 @@ test('creates a new instance of the Field defined on the form - with model', fun
   same(optionsArg.model, form.model);
 });
 
-test('creates a new instance of the Field defined on the form - without model', function() {
+QUnit.test('creates a new instance of the Field defined on the form - without model', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -544,7 +544,7 @@ test('creates a new instance of the Field defined on the form - without model', 
   same(optionsArg.value, 'John');
 });
 
-test('adds listener to all editor events', function() {
+QUnit.test('adds listener to all editor events', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -553,7 +553,7 @@ test('adds listener to all editor events', function() {
     data: { name: 'John' }
   });
 
-  this.sinon.stub(form, 'handleEditorEvent', function() {});
+  this.sinon.stub(form, 'handleEditorEvent', function(assert) {});
 
   var field = form.createField('name', { type: 'Text' });
 
@@ -566,7 +566,7 @@ test('adds listener to all editor events', function() {
   same(form.handleEditorEvent.callCount, 4);
 });
 
-test('editor events can be triggered with any number of arguments', function() {
+QUnit.test('editor events can be triggered with any number of arguments', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -575,7 +575,7 @@ test('editor events can be triggered with any number of arguments', function() {
     data: { name: 'John' }
   });
 
-  this.sinon.stub(form, 'trigger', function() { console.log(arguments)});
+  this.sinon.stub(form, 'trigger', function(assert) { console.log(arguments)});
 
   var field = form.createField('name', { type: 'Text' });
 
@@ -585,17 +585,17 @@ test('editor events can be triggered with any number of arguments', function() {
   same(form.trigger.calledWith('undefined:focus', form, field.editor, ['arg1', 'arg2']), true);
 });
 
-module('Form#handleEditorEvent', {
-  setup: function() {
+QUnit.module('Form#handleEditorEvent', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('triggers editor events on the form, prefixed with the key name', function() {
+QUnit.test('triggers editor events on the form, prefixed with the key name', function(assert) {
   var form = new Form(),
       editor = new Form.Editor({ key: 'title' });
 
@@ -617,7 +617,7 @@ test('triggers editor events on the form, prefixed with the key name', function(
   same(editorArg, editor);
 });
 
-test('triggers general form events', function() {
+QUnit.test('triggers general form events', function(assert) {
   var form = new Form(),
       editor = new Form.Editor({ key: 'title' });
 
@@ -653,7 +653,7 @@ test('triggers general form events', function() {
   }, 0);
 });
 
-test('triggers the submit event', function() {
+QUnit.test('triggers the submit event', function(assert) {
   var form = new Form();
 
   var spy = sinon.spy(),
@@ -672,32 +672,32 @@ test('triggers the submit event', function() {
 
 
 
-module('Form#render', {
-  setup: function() {
+QUnit.module('Form#render', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
-    this.sinon.stub(Form.editors.Text.prototype, 'render', function() {
+    this.sinon.stub(Form.editors.Text.prototype, 'render', function(assert) {
       this.setElement($('<input class="'+this.key+'" />'));
       return this;
     });
 
-    this.sinon.stub(Form.Field.prototype, 'render', function() {
+    this.sinon.stub(Form.Field.prototype, 'render', function(assert) {
       this.setElement($('<field class="'+this.key+'" />'));
       return this;
     });
 
-    this.sinon.stub(Form.Fieldset.prototype, 'render', function() {
+    this.sinon.stub(Form.Fieldset.prototype, 'render', function(assert) {
       this.setElement($('<fieldset></fieldset>'));
       return this;
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('returns self', function() {
+QUnit.test('returns self', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div data-fieldsets></div>')
@@ -708,7 +708,7 @@ test('returns self', function() {
   same(returnedValue, form);
 });
 
-test('with data-editors="*" placeholder, on inner element', function() {
+QUnit.test('with data-editors="*" placeholder, on inner element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div><b data-editors="*"></b></div>')
@@ -717,7 +717,7 @@ test('with data-editors="*" placeholder, on inner element', function() {
   same(form.$el.html(), '<b data-editors="*"><input class="name"><input class="password"></b>');
 });
 
-test('with data-editors="x,y" placeholder, on outermost element', function() {
+QUnit.test('with data-editors="x,y" placeholder, on outermost element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<b data-editors="name,password"></b>')
@@ -726,7 +726,7 @@ test('with data-editors="x,y" placeholder, on outermost element', function() {
   same(form.$el.html(), '<input class="name"><input class="password">');
 });
 
-test('with data-fields="*" placeholder, on inner element', function() {
+QUnit.test('with data-fields="*" placeholder, on inner element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div><b data-fields="*"></b></div>')
@@ -735,7 +735,7 @@ test('with data-fields="*" placeholder, on inner element', function() {
   same(form.$el.html(), '<b data-fields="*"><field class="name"></field><field class="password"></field></b>');
 });
 
-test('with data-fields="x,y" placeholder, on outermost element', function() {
+QUnit.test('with data-fields="x,y" placeholder, on outermost element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<b data-fields="name,password"></b>')
@@ -744,7 +744,7 @@ test('with data-fields="x,y" placeholder, on outermost element', function() {
   same(form.$el.html(), '<field class="name"></field><field class="password"></field>');
 });
 
-test('with data-fieldsets placeholder, on inner element', function() {
+QUnit.test('with data-fieldsets placeholder, on inner element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div><b data-fieldsets></b></div>')
@@ -753,7 +753,7 @@ test('with data-fieldsets placeholder, on inner element', function() {
   same(form.$el.html(), '<b data-fieldsets=""><fieldset></fieldset></b>');
 });
 
-test('with data-fieldsets placeholder, on outermost element', function() {
+QUnit.test('with data-fieldsets placeholder, on outermost element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<b data-fieldsets></b>')
@@ -762,7 +762,7 @@ test('with data-fieldsets placeholder, on outermost element', function() {
   same(form.$el.html(), '<fieldset></fieldset>');
 });
 
-test('with attributes on form element', function() {
+QUnit.test('with attributes on form element', function(assert) {
   var form = new Form({
     attributes: {
       autocomplete: "off"
@@ -774,9 +774,9 @@ test('with attributes on form element', function() {
 
 
 
-module('Form#validate');
+QUnit.module('Form#validate');
 
-test('validates the form and returns an errors object', function () {
+QUnit.test('validates the form and returns an errors object', function () {
   var form = new Form({
     schema: {
       title: {validators: ['required']}
@@ -792,7 +792,7 @@ test('validates the form and returns an errors object', function () {
   same(form.validate(), null);
 });
 
-test('returns model validation errors by default', function() {
+QUnit.test('returns model validation errors by default', function(assert) {
   var model = new Backbone.Model;
 
   model.validate = function() {
@@ -811,7 +811,7 @@ test('returns model validation errors by default', function() {
   same(err._others, ['FOO']);
 });
 
-test('skips model validation if { skipModelValidate: true } is passed', function() {
+QUnit.test('skips model validation if { skipModelValidate: true } is passed', function(assert) {
   var model = new Backbone.Model();
 
   model.validate = function() {
@@ -829,9 +829,9 @@ test('skips model validation if { skipModelValidate: true } is passed', function
 
 
 
-module('Form#commit');
+QUnit.module('Form#commit');
 
-test('returns validation errors', function() {
+QUnit.test('returns validation errors', function(assert) {
   var form = new Form({
     model: new Backbone.Model()
   });
@@ -846,7 +846,7 @@ test('returns validation errors', function() {
   same(err.foo, 'bar');
 });
 
-test('does not return  model validation errors by default', function() {
+QUnit.test('does not return  model validation errors by default', function(assert) {
   var model = new Backbone.Model();
 
   model.validate = function() {
@@ -862,7 +862,7 @@ test('does not return  model validation errors by default', function() {
   same(err, undefined);
 });
 
-test('returns model validation errors when { validate: true } is passed', function() {
+QUnit.test('returns model validation errors when { validate: true } is passed', function(assert) {
   var model = new Backbone.Model();
 
   model.validate = function() {
@@ -878,7 +878,7 @@ test('returns model validation errors when { validate: true } is passed', functi
   same(err._others, ['ERROR']);
 });
 
-test('updates the model with form values', function() {
+QUnit.test('updates the model with form values', function(assert) {
   var model = new Backbone.Model();
 
   var form = new Form({
@@ -894,7 +894,7 @@ test('updates the model with form values', function() {
   same(model.get('title'), 'New title');
 });
 
-test('triggers model change once', function() {
+QUnit.test('triggers model change once', function(assert) {
   var model = new Backbone.Model();
 
   var form = new Form({
@@ -904,7 +904,7 @@ test('triggers model change once', function() {
 
   //Count change events
   var timesCalled = 0;
-  model.on('change', function() {
+  model.on('change', function(assert) {
     timesCalled ++;
   });
 
@@ -915,7 +915,7 @@ test('triggers model change once', function() {
   same(timesCalled, 1);
 });
 
-test('can silence change event with options', function() {
+QUnit.test('can silence change event with options', function(assert) {
   var model = new Backbone.Model();
 
   var form = new Form({
@@ -925,7 +925,7 @@ test('can silence change event with options', function() {
 
   //Count change events
   var timesCalled = 0;
-  model.on('change', function() {
+  model.on('change', function(assert) {
     timesCalled ++;
   });
 
@@ -938,9 +938,9 @@ test('can silence change event with options', function() {
 
 
 
-module('Form#getValue');
+QUnit.module('Form#getValue');
 
-test('returns form value as an object', function() {
+QUnit.test('returns form value as an object', function(assert) {
   var data = {
     title: 'Nooope',
     author: 'Lana Kang'
@@ -960,7 +960,7 @@ test('returns form value as an object', function() {
   same(result.author, 'Lana Kang');
 });
 
-test('returns specific field value', function() {
+QUnit.test('returns specific field value', function(assert) {
   var data = {
     title: 'Danger Zone!',
     author: 'Sterling Archer'
@@ -979,9 +979,9 @@ test('returns specific field value', function() {
 
 
 
-module('Form#getEditor');
+QUnit.module('Form#getEditor');
 
-test('returns the editor for a given key', function() {
+QUnit.test('returns the editor for a given key', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' }
   });
@@ -991,17 +991,17 @@ test('returns the editor for a given key', function() {
 
 
 
-module('Form#focus', {
-  setup: function() {
+QUnit.module('Form#focus', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Sets focus on the first editor in the form', function() {
+QUnit.test('Sets focus on the first editor in the form', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' },
     fieldsets: [
@@ -1018,17 +1018,17 @@ test('Sets focus on the first editor in the form', function() {
 
 
 
-module('Form#blur', {
-  setup: function() {
+QUnit.module('Form#blur', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Removes focus from the currently focused editor', function() {
+QUnit.test('Removes focus from the currently focused editor', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' }
   });
@@ -1046,9 +1046,9 @@ test('Removes focus from the currently focused editor', function() {
 
 
 
-module('Form#trigger');
+QUnit.module('Form#trigger');
 
-test('Sets hasFocus to true on focus event', function() {
+QUnit.test('Sets hasFocus to true on focus event', function(assert) {
   var form = new Form();
 
   form.hasFocus = false;
@@ -1058,7 +1058,7 @@ test('Sets hasFocus to true on focus event', function() {
   same(form.hasFocus, true);
 });
 
-test('Sets hasFocus to false on blur event', function() {
+QUnit.test('Sets hasFocus to false on blur event', function(assert) {
   var form = new Form();
 
   form.hasFocus = true;
@@ -1070,20 +1070,20 @@ test('Sets hasFocus to false on blur event', function() {
 
 
 
-module('Form#remove', {
-  setup: function() {
+QUnit.module('Form#remove', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
     this.sinon.spy(Form.Fieldset.prototype, 'remove');
     this.sinon.spy(Form.Field.prototype, 'remove');
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('removes fieldsets, fields and self', function() {
+QUnit.test('removes fieldsets, fields and self', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' },
     fieldsets: [

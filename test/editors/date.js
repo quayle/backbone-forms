@@ -1,11 +1,11 @@
 ;(function(Form, Editor) {
 
-  module('Date', {
-    setup: function() {
+  QUnit.module('Date', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
     }
   });
@@ -14,7 +14,7 @@
   var same = deepEqual;
 
 
-  test('initialize() - casts values to date', function() {
+  QUnit.test('initialize() - casts values to date', function(assert) {
     var date = new Date(2000, 0, 1);
 
     var editor = new Editor({ value: date.toString() });
@@ -23,7 +23,7 @@
     same(editor.value.getTime(), date.getTime());
   });
 
-  test('initialize() - default value - today', function() {
+  QUnit.test('initialize() - default value - today', function(assert) {
     var editor = new Editor;
 
     var today = new Date,
@@ -34,7 +34,7 @@
     same(value.getDate(), today.getDate());
   });
 
-  test('initialize() - default options and schema', function() {
+  QUnit.test('initialize() - default options and schema', function(assert) {
     var editor = new Editor();
 
     var schema = editor.schema,
@@ -50,7 +50,7 @@
     same(editor.options.monthNames, Editor.monthNames);
   });
 
-  test('render()', function() {
+  QUnit.test('render()', function(assert) {
     var date = new Date,
         editor = new Editor({ value: date }),
         spy = this.sinon.spy(editor, 'setValue');
@@ -76,10 +76,10 @@
     same(editor.$year.find('option:first').html(), editor.schema.yearStart.toString());
     same(editor.$year.find('option:last').html(), editor.schema.yearEnd.toString());
 
-    ok(spy.calledWith(date), 'Called setValue');
+    assert.ok(spy.calledWith(date), 'Called setValue');
   });
 
-  test('render() - with showMonthNames false', function() {
+  QUnit.test('render() - with showMonthNames false', function(assert) {
     var editor = new Editor({
       showMonthNames: false
     }).render();
@@ -89,7 +89,7 @@
     same(editor.$month.find('option:last').html(), '12');
   });
 
-  test('render() - with yearStart after yearEnd', function() {
+  QUnit.test('render() - with yearStart after yearEnd', function(assert) {
     var editor = new Editor({
       schema: {
         yearStart: 2000,
@@ -103,7 +103,7 @@
     same(editor.$year.find('option:last').html(), editor.schema.yearEnd.toString());
   });
 
-  test('getValue() - returns a Date', function() {
+  QUnit.test('getValue() - returns a Date', function(assert) {
     var date = new Date(2010, 5, 5),
         editor = new Editor({ value: date }).render();
 
@@ -113,7 +113,7 @@
     same(value.getTime(), date.getTime());
   });
 
-  test('setValue()', function() {
+  QUnit.test('setValue()', function(assert) {
     var date = new Date(2015, 1, 4);
 
     var editor = new Editor({
@@ -132,7 +132,7 @@
     same(editor.getValue().getTime(), date.getTime());
   });
 
-  test('setValue() updates model', function() {
+  QUnit.test('setValue() updates model', function(assert) {
     var date = new Date(2015, 1, 4);
 
     var editor = new Editor({
@@ -151,7 +151,7 @@
     same(editor.getValue().getTime(), date.getTime());
   });
 
-  test('updates the hidden input when a value changes', function() {
+  QUnit.test('updates the hidden input when a value changes', function(assert) {
     var date = new Date(2012, 2, 5);
 
     var editor = new Editor({
@@ -175,7 +175,7 @@
     same(hiddenVal.getDate(), 13);
   });
 
-  test('Uses Backbone.$ not global', function() {
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
     var old$ = window.$,
       exceptionCaught = false;
 
@@ -191,11 +191,11 @@
 
     window.$ = old$;
 
-    ok(!exceptionCaught, ' using global \'$\' to render');
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
-  module('Date events', {
-    setup: function() {
+  QUnit.module('Date events', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -203,20 +203,20 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test("focus() - gives focus to editor and its first selectbox", function() {
+  QUnit.test("focus() - gives focus to editor and its first selectbox", function() {
     var editor = this.editor;
 
     editor.focus();
 
-    ok(editor.hasFocus);
-    ok(editor.$('select').first().is(':focus'));
+    assert.ok(editor.hasFocus);
+    assert.ok(editor.$('select').first().is(':focus'));
 
     editor.blur();
 
@@ -226,7 +226,7 @@
     }, 0);
   });
 
-  test("focus() - triggers the 'focus' event", function() {
+  QUnit.test("focus() - triggers the 'focus' event", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -237,8 +237,8 @@
 
     stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
       editor.blur();
 
@@ -248,7 +248,7 @@
     }, 0);
   });
 
-  test("blur() - removes focus from the editor and its focused selectbox", function() {
+  QUnit.test("blur() - removes focus from the editor and its focused selectbox", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -257,14 +257,14 @@
 
     stop();
     setTimeout(function() {
-      ok(!editor.hasFocus);
-      ok(!editor.$('input[type=selectbox]').first().is(':focus'));
+      assert.ok(!editor.hasFocus);
+      assert.ok(!editor.$('input[type=selectbox]').first().is(':focus'));
 
       start();
     }, 0);
   });
 
-  test("blur() - triggers the 'blur' event", function() {
+  QUnit.test("blur() - triggers the 'blur' event", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -277,14 +277,14 @@
 
     stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
       start();
     }, 0);
   });
 
-  test("'change' event - bubbles up from the selectbox", function() {
+  QUnit.test("'change' event - bubbles up from the selectbox", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -294,11 +294,11 @@
     editor.$("select").first().val('31');
     editor.$("select").first().change();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("'focus' event - bubbles up from selectbox when editor doesn't have focus", function() {
+  QUnit.test("'focus' event - bubbles up from selectbox when editor doesn't have focus", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -307,8 +307,8 @@
 
     editor.$("select").first().focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
 
     editor.blur();
 
@@ -318,7 +318,7 @@
     }, 0);
   });
 
-  test("'focus' event - doesn't bubble up from selectbox when editor already has focus", function() {
+  QUnit.test("'focus' event - doesn't bubble up from selectbox when editor already has focus", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -329,7 +329,7 @@
 
     editor.$("select").focus();
 
-    ok(!spy.called);
+    assert.ok(!spy.called);
 
     editor.blur();
 
@@ -339,7 +339,7 @@
     }, 0);
   });
 
-  test("'blur' event - bubbles up from selectbox when editor has focus and we're not focusing on another one of the editor's selectboxes", function() {
+  QUnit.test("'blur' event - bubbles up from selectbox when editor has focus and we're not focusing on another one of the editor's selectboxes", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -352,14 +352,14 @@
 
     stop();
     setTimeout(function() {
-        ok(spy.called);
-        ok(spy.calledWith(editor));
+        assert.ok(spy.called);
+        assert.ok(spy.calledWith(editor));
 
         start();
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from selectbox when editor has focus and we're focusing on another one of the editor's selectboxes", function() {
+  QUnit.test("'blur' event - doesn't bubble up from selectbox when editor has focus and we're focusing on another one of the editor's selectboxes", function() {
     var editor = this.editor;
 
     editor.focus();
@@ -373,7 +373,7 @@
 
     stop();
     setTimeout(function() {
-      ok(!spy.called);
+      assert.ok(!spy.called);
 
       editor.blur();
 
@@ -383,7 +383,7 @@
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from selectbox when editor doesn't have focus", function() {
+  QUnit.test("'blur' event - doesn't bubble up from selectbox when editor doesn't have focus", function() {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -394,7 +394,7 @@
 
     stop();
     setTimeout(function() {
-        ok(!spy.called);
+        assert.ok(!spy.called);
 
         start();
     }, 0);

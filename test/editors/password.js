@@ -1,13 +1,13 @@
 ;(function(Form, Editor) {
 
-  module('Password');
+  QUnit.module('Password');
 
   var same = deepEqual;
 
 
-  module('Password#initialize');
+  QUnit.module('Password#initialize');
 
-  test('Sets input type', function() {
+  QUnit.test('Sets input type', function(assert) {
     var editor = new Editor();
 
     same(editor.$el.attr('type'), 'password');
