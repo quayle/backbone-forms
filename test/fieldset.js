@@ -1,18 +1,16 @@
 ;(function(Form, Fieldset) {
 
-var same = deepEqual;
-
-module('Fieldset#initialize', {
-  setup: function() {
+QUnit.module('Fieldset#initialize', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates the schema', function() {
+QUnit.test('creates the schema', function(assert) {
   this.sinon.spy(Fieldset.prototype, 'createSchema');
 
   var fields = {
@@ -27,12 +25,12 @@ test('creates the schema', function() {
 
   var fs = new Fieldset(options);
 
-  same(fs.createSchema.callCount, 1);
-  same(fs.createSchema.args[0][0], options.schema);
-  same(fs.schema, options.schema);
+  assert.deepEqual(fs.createSchema.callCount, 1);
+  assert.deepEqual(fs.createSchema.args[0][0], options.schema);
+  assert.deepEqual(fs.schema, options.schema);
 });
 
-test('stores fields defined in the schema', function() {
+QUnit.test('stores fields defined in the schema', function(assert) {
   var fields = {
     title: new Form.Field({ key: 'title' }),
     author: new Form.Field({ key: 'author' })
@@ -45,10 +43,10 @@ test('stores fields defined in the schema', function() {
 
   var fs = new Fieldset(options);
 
-  same(_.keys(fs.fields), ['title', 'author']);
+  assert.deepEqual(_.keys(fs.fields), ['title', 'author']);
 });
 
-test('overrides defaults', function() {
+QUnit.test('overrides defaults', function(assert) {
   var options = {
     fields: { title: new Form.Field({ key: 'title' }) },
     schema: ['title'],
@@ -57,13 +55,13 @@ test('overrides defaults', function() {
 
   var fs = new Fieldset(options);
 
-  same(fs.template, options.template);
+  assert.deepEqual(fs.template, options.template);
 });
 
 
 
 
-test('first, uses template defined in options', function() {
+QUnit.test('first, uses template defined in options', function(assert) {
   var optionsTemplate = _.template('<div class="options" data-fields></div>'),
       schemaTemplate = _.template('<div class="schema" data-fields></div>'),
       protoTemplate = _.template('<div class="prototype" data-fields></div>'),
@@ -80,10 +78,10 @@ test('first, uses template defined in options', function() {
     schema: { fields: [], template: schemaTemplate }
   });
 
-  same(fieldset.template, optionsTemplate);
+  assert.deepEqual(fieldset.template, optionsTemplate);
 });
 
-test('second, uses template defined in schema', function() {
+QUnit.test('second, uses template defined in schema', function(assert) {
   var schemaTemplate = _.template('<div class="schema" data-fields></div>'),
       protoTemplate = _.template('<div class="prototype" data-fields></div>'),
       constructorTemplate = _.template('<div class="constructor" data-fields></div>');
@@ -98,10 +96,10 @@ test('second, uses template defined in schema', function() {
     schema: { fields: [], template: schemaTemplate }
   });
 
-  same(fieldset.template, schemaTemplate);
+  assert.deepEqual(fieldset.template, schemaTemplate);
 });
 
-test('third, uses template defined on prototype', function() {
+QUnit.test('third, uses template defined on prototype', function(assert) {
   var protoTemplate = _.template('<div class="prototype" data-fields></div>'),
       constructorTemplate = _.template('<div class="constructor" data-fields></div>');
 
@@ -115,10 +113,10 @@ test('third, uses template defined on prototype', function() {
     schema: { fields: [] }
   });
 
-  same(fieldset.template, protoTemplate);
+  assert.deepEqual(fieldset.template, protoTemplate);
 });
 
-test('fourth, uses template defined on constructor', function() {
+QUnit.test('fourth, uses template defined on constructor', function(assert) {
   var constructorTemplate = _.template('<div class="constructor" data-fields></div>');
 
   var CustomFieldset = Fieldset.extend({
@@ -130,22 +128,47 @@ test('fourth, uses template defined on constructor', function() {
     schema: { fields: [] },
   });
 
-  same(fieldset.template, constructorTemplate);
+  assert.deepEqual(fieldset.template, constructorTemplate);
 });
 
+QUnit.test('Uses Backbone.$ not global', function(assert) {
+  var old$ = window.$,
+    exceptionCaught = false;
 
+  window.$ = null;
 
-module('Fieldset#createSchema', {
-  setup: function() {
+  try {
+     var fields = {
+        title: new Form.Field({ key: 'title' }),
+        author: new Form.Field({ key: 'author' })
+      };
+
+      var options = {
+        fields: fields,
+        schema: { legend: 'Test', fields: ['title', 'author'] }
+      };
+
+      var fs = new Fieldset(options).render();
+  } catch(e) {
+    exceptionCaught = true;
+  }
+
+  window.$ = old$;
+
+  assert.ok(!exceptionCaught, ' using global \'$\' to render');
+});
+
+QUnit.module('Fieldset#createSchema', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('converts an array schema into an object with legend', function() {
+QUnit.test('converts an array schema into an object with legend', function(assert) {
   var options = {
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -158,10 +181,10 @@ test('converts an array schema into an object with legend', function() {
 
   var schema = fs.createSchema(options.schema);
 
-  same(schema, { legend:null, fields: ['title', 'author'] });
+  assert.deepEqual(schema, { legend:null, fields: ['title', 'author'] });
 });
 
-test('returns fully formed schema as is', function() {
+QUnit.test('returns fully formed schema as is', function(assert) {
   var options = {
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -174,14 +197,14 @@ test('returns fully formed schema as is', function() {
 
   var schema = fs.createSchema(options.schema);
 
-  same(schema, options.schema);
+  assert.deepEqual(schema, options.schema);
 });
 
 
 
-module('Fieldset#getFieldAt');
+QUnit.module('Fieldset#getFieldAt');
 
-test('returns field at a given index', function() {
+QUnit.test('returns field at a given index', function(assert) {
   var fs = new Fieldset({
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -190,15 +213,15 @@ test('returns field at a given index', function() {
     schema: { legend: 'Main', fields: ['title', 'author'] }
   });
 
-  same(fs.getFieldAt(0), fs.fields.title);
-  same(fs.getFieldAt(1), fs.fields.author);
+  assert.deepEqual(fs.getFieldAt(0), fs.fields.title);
+  assert.deepEqual(fs.getFieldAt(1), fs.fields.author);
 });
 
 
 
-module('Fieldset#templateData');
+QUnit.module('Fieldset#templateData');
 
-test('returns schema', function() {
+QUnit.test('returns schema', function(assert) {
   var fs = new Fieldset({
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -207,27 +230,27 @@ test('returns schema', function() {
     schema: { legend: 'Main', fields: ['title', 'author'] }
   });
 
-  same(fs.templateData(), fs.schema);
+  assert.deepEqual(fs.templateData(), fs.schema);
 });
 
 
 
-module('Fieldset#render', {
-  setup: function() {
+QUnit.module('Fieldset#render', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
-    this.sinon.stub(Form.Field.prototype, 'render', function() {
+    this.sinon.stub(Form.Field.prototype, 'render', function(assert) {
       this.setElement($('<field class="'+this.key+'" />'));
       return this;
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('returns self', function() {
+QUnit.test('returns self', function(assert) {
   var fs = new Fieldset({
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -238,10 +261,10 @@ test('returns self', function() {
 
   var returnedValue = fs.render();
 
-  same(returnedValue, fs);
+  assert.deepEqual(returnedValue, fs);
 });
 
-test('with data-fields placeholder, on inner element', function() {
+QUnit.test('with data-fields placeholder, on inner element', function(assert) {
   var fs = new Fieldset({
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -253,10 +276,10 @@ test('with data-fields placeholder, on inner element', function() {
 
   fs.render();
 
-  same(fs.$el.html(), 'Main<b data-fields=""><field class="title"></field><field class="author"></field></b>');
+  assert.deepEqual(fs.$el.html(), 'Main<b data-fields=""><field class="title"></field><field class="author"></field></b>');
 });
 
-test('with data-fields placeholder, on outermost element', function() {
+QUnit.test('with data-fields placeholder, on outermost element', function(assert) {
   var fs = new Fieldset({
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -268,24 +291,24 @@ test('with data-fields placeholder, on outermost element', function() {
 
   fs.render();
 
-  same(fs.$el.html(), 'Main<field class="title"></field><field class="author"></field>');
+  assert.deepEqual(fs.$el.html(), 'Main<field class="title"></field><field class="author"></field>');
 });
 
 
 
-module('Form#remove', {
-  setup: function() {
+QUnit.module('Form#remove', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
     this.sinon.spy(Form.Field.prototype, 'remove');
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('removes fieldsets, fields and self', function() {  
+QUnit.test('removes fieldsets, fields and self', function(assert) {
   var fs = new Fieldset({
     fields: {
       title: new Form.Field({ key: 'title' }),
@@ -293,10 +316,10 @@ test('removes fieldsets, fields and self', function() {
     },
     schema: { legend: 'Main', fields: ['title', 'author'] }
   });
-  
+
   fs.remove();
 
-  same(Form.Field.prototype.remove.callCount, 2);
+  assert.deepEqual(Form.Field.prototype.remove.callCount, 2);
 });
 
 })(Backbone.Form, Backbone.Form.Fieldset);

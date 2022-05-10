@@ -1,11 +1,11 @@
 ;(function(Form, Editor) {
 
-  module('Checkbox', {
-    setup: function() {
+  QUnit.module('Checkbox', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
     }
   });
@@ -19,37 +19,37 @@
 
 
 
-  test('Default value', function() {
+  QUnit.test('Default value', function(assert) {
     var editor = new Editor().render();
 
-    deepEqual(editor.getValue(), false);
+    assert.deepEqual(editor.getValue(), false);
   });
 
-  test('Custom value', function() {
+  QUnit.test('Custom value', function(assert) {
     var editor = new Editor({
       value: true
     }).render();
 
-    deepEqual(editor.getValue(), true);
+    assert.deepEqual(editor.getValue(), true);
   });
 
-  test('Value from model', function() {
+  QUnit.test('Value from model', function(assert) {
     var editor = new Editor({
       model: new Model({ enabled: true }),
       key: 'enabled'
     }).render();
 
-    deepEqual(editor.getValue(), true);
+    assert.deepEqual(editor.getValue(), true);
   });
 
-  test('Correct type', function() {
+  QUnit.test('Correct type', function(assert) {
     var editor = new Editor().render();
 
-    deepEqual($(editor.el).get(0).tagName, 'INPUT');
-    deepEqual($(editor.el).attr('type'), 'checkbox');
+    assert.deepEqual($(editor.el).get(0).tagName, 'INPUT');
+    assert.deepEqual($(editor.el).attr('type'), 'checkbox');
   });
 
-  test("getValue() - returns boolean", function() {
+  QUnit.test("getValue() - returns boolean", function(assert) {
     var editor1 = new Editor({
       value: true
     }).render();
@@ -58,11 +58,11 @@
       value: false
     }).render();
 
-    deepEqual(editor1.getValue(), true);
-    deepEqual(editor2.getValue(), false);
+    assert.deepEqual(editor1.getValue(), true);
+    assert.deepEqual(editor2.getValue(), false);
   });
 
-  test("setValue() - updates the input value", function() {
+  QUnit.test("setValue() - updates the input value", function(assert) {
     var editor = new Editor({
       model: new Model,
       key: 'enabled'
@@ -70,19 +70,53 @@
 
     editor.setValue(true);
 
-    deepEqual(editor.getValue(), true);
-    deepEqual($(editor.el).prop('checked'), true);
-    
+    assert.deepEqual(editor.getValue(), true);
+    assert.deepEqual($(editor.el).prop('checked'), true);
+
     editor.setValue(false);
 
-    deepEqual(editor.getValue(), false);
-    deepEqual($(editor.el).prop('checked'), false);
+    assert.deepEqual(editor.getValue(), false);
+    assert.deepEqual($(editor.el).prop('checked'), false);
   });
 
+  QUnit.test("setValue() - updates the model value", function(assert) {
+    var editor = new Editor({
+      model: new Model,
+      key: 'enabled'
+    }).render();
 
+    editor.setValue(true);
+    editor.render();
+    assert.deepEqual(editor.getValue(), true);
+    assert.deepEqual($(editor.el).prop('checked'), true);
 
-  module('Checkbox events', {
-    setup: function() {
+    editor.setValue(false);
+
+    assert.deepEqual(editor.getValue(), false);
+    assert.deepEqual($(editor.el).prop('checked'), false);
+  });
+
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
+    var old$ = window.$,
+      exceptionCaught = false;
+
+    window.$ = null;
+
+    try {
+      var editor = new Editor({
+        value: true
+      }).render();
+    } catch(e) {
+      exceptionCaught = true;
+    }
+
+    window.$ = old$;
+
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
+  });
+
+  QUnit.module('Checkbox events', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -90,23 +124,23 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test("focus() - gives focus to editor and its checkbox", function() {
+  QUnit.test("focus() - gives focus to editor and its checkbox", function(assert) {
     var editor = this.editor;
 
     editor.focus();
 
-    ok(editor.hasFocus);
-    ok(editor.$el.is(':focus'));
+    assert.ok(editor.hasFocus);
+    assert.ok(editor.$el.is(':focus'));
   });
 
-  test("focus() - triggers the 'focus' event", function() {
+  QUnit.test("focus() - triggers the 'focus' event", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -115,22 +149,22 @@
 
     editor.focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("blur() - removes focus from the editor and its checkbox", function() {
+  QUnit.test("blur() - removes focus from the editor and its checkbox", function(assert) {
     var editor = this.editor;
 
     editor.focus();
 
     editor.blur();
 
-    ok(!editor.hasFocus);
-    ok(!editor.$el.is(':focus'));
+    assert.ok(!editor.hasFocus);
+    assert.ok(!editor.$el.is(':focus'));
   });
 
-  test("blur() - triggers the 'blur' event", function() {
+  QUnit.test("blur() - triggers the 'blur' event", function(assert) {
     var editor = this.editor;
 
     editor.focus()
@@ -141,11 +175,11 @@
 
     editor.blur();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("'change' event - is triggered when the checkbox is clicked", function() {
+  QUnit.test("'change' event - is triggered when the checkbox is clicked", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -154,11 +188,11 @@
 
     editor.$el.click();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
   });
 
-  test("'focus' event - bubbles up from the checkbox", function() {
+  QUnit.test("'focus' event - bubbles up from the checkbox", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -167,11 +201,11 @@
 
     editor.$el.focus();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
   });
 
-  test("'blur' event - bubbles up from the checkbox", function() {
+  QUnit.test("'blur' event - bubbles up from the checkbox", function(assert) {
     var editor = this.editor;
 
     editor.$el.focus();
@@ -182,8 +216,8 @@
 
     editor.$el.blur();
 
-    ok(spy.calledOnce);
-    ok(spy.alwaysCalledWith(editor));
+    assert.ok(spy.calledOnce);
+    assert.ok(spy.alwaysCalledWith(editor));
   });
 
 })(Backbone.Form, Backbone.Form.editors.Checkbox);

@@ -4,46 +4,70 @@
 
 ;(function() {
 
-  module('general')
-  
-  test('can change default error messages with mustache tags', function() {
+  QUnit.module('general')
+
+  QUnit.test('can change default error messages with mustache tags', function(assert) {
     var originalMessage = Form.validators.errMessages.email;
-    
+
     Form.validators.errMessages.email = _.template('<%= value %> is an invalid email address. <%= customTag %>.', null, Form.templateSettings);
-    
+
     var email = Form.validators.email({ customTag: 'Cool beans' })
-    equal(email('foo').message, 'foo is an invalid email address. Cool beans.')
-    
+    assert.equal(email('foo').message, 'foo is an invalid email address. Cool beans.')
+
     //Restore original message
     Form.validators.errMessages.email = originalMessage;
   })
-  
+
 })();
 
 
 ;(function() {
 
-  module('required')
-  
+  QUnit.module('required')
+
   var required = Form.validators.required()
 
-  test('error if field is null or undefined or false', function() {
-    ok(required(null))
-    ok(required())
-    ok(required(false))
+  QUnit.test('error if field is null or undefined or false', function(assert) {
+    assert.ok(required(null))
+    assert.ok(required())
+    assert.ok(required(false))
   })
-  
-  test('error if field is empty string', function() {
-    ok(required(''))
-    equal(required('test', undefined))
+
+  QUnit.test('error if field is a string that contains only whitespace', function(assert) {
+    assert.ok(required(" "))
+    assert.ok(required("  "))
+    assert.ok(required(" "))
+    assert.ok(required("   "))
   })
-  
-  test('ok if field is number 0', function() {
-    equal(required(0), undefined)
+
+  QUnit.test('error if field is empty string', function(assert) {
+    assert.ok(required(''))
+    assert.equal(required('test', undefined))
   })
-  
-  test('ok if field is boolean true', function() {
-    equal(required(true), undefined)
+
+  QUnit.test('ok if field is number 0', function(assert) {
+    assert.equal(required(0), undefined)
+  })
+
+  QUnit.test('ok if field is boolean true', function(assert) {
+    assert.equal(required(true), undefined)
+  })
+
+  QUnit.test('ok if field is string', function(assert) {
+    assert.equal(required('test'), undefined)
+    assert.equal(required(' test'), undefined)
+    assert.equal(required('test '), undefined)
+    assert.equal(required(' test '), undefined)
+  })
+
+  QUnit.test('required uses Backbone.$ not global #519', function(assert) {
+    var old$ = window.$;
+
+    window.$ = null;
+
+    assert.ok(required("   "))
+
+    window.$ = old$;
   })
 
 })();
@@ -51,216 +75,277 @@
 
 ;(function() {
 
-  module('regexp')
+  QUnit.module('regexp')
 
-  //Main  
+  //Main
   var fn = Form.validators.regexp({
     regexp: /foo/
   });
 
-  test('passes empty values', function() {
-    equal(fn(''), undefined)
-    equal(fn(null), undefined)
-    equal(fn(undefined), undefined)
+  QUnit.test('passes empty values', function(assert) {
+    assert.equal(fn(''), undefined)
+    assert.equal(fn(null), undefined)
+    assert.equal(fn(undefined), undefined)
   })
-  
-  test('fails invalid strings', function() {
-    equal(fn('gsurkbfsr').type, 'regexp')
-    equal(fn('guerbayf').message, 'Invalid')
+
+  QUnit.test('fails invalid strings', function(assert) {
+    assert.equal(fn('gsurkbfsr').type, 'regexp')
+    assert.equal(fn('guerbayf').message, 'Invalid')
   })
-  
-  test('passes valid strings', function() {
-    equal(fn('foo'), undefined)
-    equal(fn('_foo_'), undefined)
+
+  QUnit.test('passes valid strings', function(assert) {
+    assert.equal(fn('foo'), undefined)
+    assert.equal(fn('_foo_'), undefined)
   })
 
   //regexp as string
-  test('fails string input', function() {
+  QUnit.test('fails string input', function(assert) {
     var fn = Form.validators.regexp({
       regexp : '^(foo|bar)$',
       flags : 'i'
     });
 
-    equal(fn(''), undefined)
-    equal(fn('food').type, 'regexp')
-    equal(fn('food').message, 'Invalid')
-    equal(fn('bars').type, 'regexp')
-    equal(fn('bars').message, 'Invalid')
+    assert.equal(fn(''), undefined)
+    assert.equal(fn('food').type, 'regexp')
+    assert.equal(fn('food').message, 'Invalid')
+    assert.equal(fn('bars').type, 'regexp')
+    assert.equal(fn('bars').message, 'Invalid')
   })
 
-  test('passes string input', function() {
+  QUnit.test('passes string input', function(assert) {
     var fn = Form.validators.regexp({
       regexp : '^(foo|bar)$',
       flags : 'i'
     });
 
-    equal(fn('foo'), undefined)
-    equal(fn('bar'), undefined)
+    assert.equal(fn('foo'), undefined)
+    assert.equal(fn('bar'), undefined)
   })
 
 
   //match option
-  test('passes valid strings with match=true', function() {
+  QUnit.test('passes valid strings with match=true', function(assert) {
     var fn = Form.validators.regexp({
       regexp: /foo/,
       match: true
     });
 
-    equal(fn('foo'), undefined)
+    assert.equal(fn('foo'), undefined)
   });
 
-  test('fails strings with match=true', function() {
+  QUnit.test('fails strings with match=true', function(assert) {
     var fn = Form.validators.regexp({
       regexp: /foo/,
       match: true
     });
 
-    equal(fn('bar').message, 'Invalid')
+    assert.equal(fn('bar').message, 'Invalid')
   });
 
-  test('passes valid strings with match=false', function() {
+  QUnit.test('passes valid strings with match=false', function(assert) {
     var fn = Form.validators.regexp({
       regexp: /foo/,
       match: false
     });
 
-    equal(fn('foo').message, 'Invalid');
+    assert.equal(fn('foo').message, 'Invalid');
   });
 
-  test('fails strings with match=false', function() {
+  QUnit.test('fails strings with match=false', function(assert) {
     var fn = Form.validators.regexp({
       regexp: /foo/,
       match: false
     });
 
-    equal(fn('bar'), undefined);
+    assert.equal(fn('bar'), undefined);
   });
 
 })();
 
 
 ;(function() {
-  module('number')
-  
+  QUnit.module('number')
+
   var fn = Form.validators.number()
-  
-  test('passes empty values', function() {
-    equal(fn(''), undefined)
-    equal(fn(null), undefined)
-    equal(fn(undefined), undefined)
+
+  QUnit.test('passes empty values', function(assert) {
+    assert.equal(fn(''), undefined)
+    assert.equal(fn(null), undefined)
+    assert.equal(fn(undefined), undefined)
   })
-  
-  test('fails non-number values', function() {
-    ok(fn('foo'))
-    ok(fn('123a'))
+
+  QUnit.test('fails non-number values', function(assert) {
+    assert.ok(fn('foo'))
+    assert.ok(fn('123a'))
+    assert.ok(fn('-.'))
+    assert.ok(fn('5.'))
   })
-  
-  test('accepts numbers', function() {
-    equal(fn('123'), undefined)
-    equal(fn(456), undefined)
-    equal(fn(123.3), undefined)
-    equal(fn('123.5'), undefined)
+
+  QUnit.test('accepts numbers', function(assert) {
+    assert.equal(fn('123'), undefined)
+    assert.equal(fn(456), undefined)
+    assert.equal(fn(123.3), undefined)
+    assert.equal(fn('123.5'), undefined)
+    assert.equal(fn('-123.5'), undefined)
+    assert.equal(fn(-123.5), undefined)
+    assert.equal(fn('.5'), undefined)
+    assert.equal(fn(0.5), undefined)
   })
-  
+
 })();
 
+/*
+;(function() {
+  QUnit.module('range')
+
+  var fn = Form.validators.range()
+
+  QUnit.test('passes empty values', function(assert) {
+    assert.equal(fn(''), undefined)
+    assert.equal(fn(null), undefined)
+    assert.equal(fn(undefined), undefined)
+  })
+
+  QUnit.test('fails non-number values', function(assert) {
+    assert.ok(fn('foo'))
+    assert.ok(fn('123a'))
+  })
+
+  QUnit.test('accepts numbers in range', function(assert) {
+    assert.equal(fn('12'), undefined)
+    assert.equal(fn(45), undefined)
+    assert.equal(fn(13.3), undefined)
+    assert.equal(fn('23.5'), undefined)
+  })
+
+  QUnit.test('fails numbers out of range', function(assert) {
+    assert.ok(fn('123'))
+    assert.ok(fn(456))
+    assert.ok(fn('-1'))
+    assert.ok(fn(-2))
+  })
+
+})();
+*/
 
 ;(function() {
-  module('email')
-  
+  QUnit.module('email')
+
   var fn = Form.validators.email()
-  
-  test('passes empty values', function() {
-    equal(fn(''), undefined)
-    equal(fn(null), undefined)
-    equal(fn(undefined), undefined)
+
+  QUnit.test('passes empty values', function(assert) {
+    assert.equal(fn(''), undefined)
+    assert.equal(fn(null), undefined)
+    assert.equal(fn(undefined), undefined)
   })
-  
-  test('fails invalid emails', function() {
-    ok(fn('invalid'))
-    ok(fn('email@example'))
-    ok(fn('foo/bar@example.com'))
-    ok(fn('foo?bar@example.com'))
-    ok(fn('foo@exa#mple.com'))
-    ok(fn(234))
+
+  QUnit.test('fails invalid emails', function(assert) {
+    assert.ok(fn('invalid'))
+    assert.ok(fn('email@example'))
+    assert.ok(fn('foo@exa#mple.com'))
+    assert.ok(fn(234))
+    assert.ok(fn('#@%^%#$@#$@#.com'))
+    assert.ok(fn('@domain.com'))
+    assert.ok(fn('Joe Smith <email@domain.com>'))
+    assert.ok(fn('email.domain.com'))
+    assert.ok(fn('email@domain@domain.com'))
+    assert.ok(fn('.email@domain.com'))
+    assert.ok(fn('email.@domain.com'))
+    assert.ok(fn('email..email@domain.com'))
+    assert.ok(fn('あいうえお@domain.com'))
+    assert.ok(fn('email@domain.com (Joe Smith)'))
+    assert.ok(fn('email@-domain.com'))
+    //ok(fn('email@domain.web')) //@todo: validate TLD
+    //ok(fn('email@111.222.333.44444')) //@todo: check for valid IP
+    assert.ok(fn('email@domain..com'))
   })
-  
-  test('accepts valid emails', function() {
-    equal(fn('test@example.com'), undefined)
-    equal(fn('john.smith@example.com'), undefined)
-    equal(fn('john.smith@example.co.uk'), undefined)
-    equal(fn('john-smith@example.com'), undefined)
-    equal(fn('john+smith@example.com'), undefined)
+
+  QUnit.test('accepts valid emails', function(assert) {
+    assert.equal(fn('foo/bar@example.com'), undefined)
+    assert.equal(fn('foo?bar@example.com'), undefined)
+    assert.equal(fn('test@example.com'), undefined)
+    assert.equal(fn('john.smith@example.com'), undefined)
+    assert.equal(fn('john.smith@example.co.uk'), undefined)
+    assert.equal(fn('john-smith@example.com'), undefined)
+    assert.equal(fn('john+smith@example.com'), undefined)
+    assert.equal(fn('john\'s.email@example.com'), undefined)
+    assert.equal(fn('email@123.123.123.123'), undefined)
+    assert.equal(fn('1234567890@domain.com'), undefined)
+    assert.equal(fn('email@domain-one.com'), undefined)
+    assert.equal(fn('_______@domain.com'), undefined)
+    assert.equal(fn('email@domain.name'), undefined)
   })
-  
+
 })();
 
 
 ;(function() {
-  module('url')
-  
+  QUnit.module('url')
+
   var fn = Form.validators.url()
-  
-  test('passes empty values', function() {
-    equal(fn(''), undefined)
-    equal(fn(null), undefined)
-    equal(fn(undefined), undefined)
+
+  QUnit.test('passes empty values', function(assert) {
+    assert.equal(fn(''), undefined)
+    assert.equal(fn(null), undefined)
+    assert.equal(fn(undefined), undefined)
   })
-  
-  test('fails invalid url', function() {
-    ok(fn('invalid'))
-    ok(fn('example.com'))
-    ok(fn('www.example.com'))
-    ok(fn('htp://example.com'))
-    ok(fn('http://example'))
-    ok(fn(234))
+
+  QUnit.test('fails invalid url', function(assert) {
+    assert.ok(fn('invalid'))
+    assert.ok(fn('.example.com'))
+    assert.ok(fn('htp://example.com'))
+    assert.ok(fn('http://example'))
+    assert.ok(fn(234))
   })
-  
-  test('accepts valid urls', function() {
-    equal(fn('http://example.com'), undefined)
-    equal(fn('http://example.co.uk'), undefined)
-    equal(fn('http://www.example.com'), undefined)
-    equal(fn('http://subdomain.domain.co.uk'), undefined)
-    equal(fn('http://example.com/path'), undefined)
-    equal(fn('http://www.example.com/path/1/2'), undefined)
-    equal(fn('http://www.example.com/path/1/2?q=str'), undefined)
+
+  QUnit.test('accepts valid urls', function(assert) {
+    assert.equal(fn('example.com'))
+    assert.equal(fn('www.example.com'))
+    assert.equal(fn('http://example.com'), undefined)
+    assert.equal(fn('http://example.co.uk'), undefined)
+    assert.equal(fn('http://www.example.com'), undefined)
+    assert.equal(fn('http://www.example.com:8081'), undefined)
+    assert.equal(fn('http://subdomain.domain.co.uk'), undefined)
+    assert.equal(fn('http://example.com/path'), undefined)
+    assert.equal(fn('http://www.example.com/path/1/2'), undefined)
+    assert.equal(fn('http://www.example.com/path/1/2?q=str'), undefined)
   })
-  
+
 })();
 
 
 ;(function() {
-  module('match')
-  
+  QUnit.module('match')
+
   var fn = Form.validators.match({
     field: 'confirm'
   });
-  
-  test('passes empty values', function() {
-    equal(fn(''), undefined)
-    equal(fn(null), undefined)
-    equal(fn(undefined), undefined)
+
+  QUnit.test('passes empty values', function(assert) {
+    assert.equal(fn(''), undefined)
+    assert.equal(fn(null), undefined)
+    assert.equal(fn(undefined), undefined)
   })
-  
-  test('accepts when fields match', function() {
+
+  QUnit.test('accepts when fields match', function(assert) {
     var attrs = {
       password: 'foo',
       confirm: 'foo'
     };
-    
-    equal(fn('foo', attrs), undefined)
+
+    assert.equal(fn('foo', attrs), undefined)
   })
-  
-  test('fails when fields dont match', function() {
+
+  QUnit.test('fails when fields dont match', function(assert) {
     var attrs = {
       password: 'foo',
       confirm: 'bar'
     };
-    
+
     var err = fn('foo', attrs)
-    
-    equal(err.type, 'match')
-    equal(err.message, 'Must match field "confirm"')
+
+    assert.equal(err.type, 'match')
+    assert.equal(err.message, 'Must match field "confirm"')
   })
 })();
 

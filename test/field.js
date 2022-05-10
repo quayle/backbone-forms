@@ -1,19 +1,16 @@
 ;(function(Form, Field) {
 
-var same = deepEqual;
-
-
-module('Field#initialize', {
-  setup: function() {
+QUnit.module('Field#initialize', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('overrides defaults', function() {
+QUnit.test('overrides defaults', function(assert) {
   var options = {
     key: 'title',
     template: _.template('<b></b>'),
@@ -22,11 +19,11 @@ test('overrides defaults', function() {
 
   var field = new Field(options);
 
-  same(field.template, options.template);
-  same(field.errorClassName, 'ERR');
+  assert.deepEqual(field.template, options.template);
+  assert.deepEqual(field.errorClassName, 'ERR');
 });
 
-test('stores important options', function() {
+QUnit.test('stores important options', function(assert) {
   var options = {
     key: 'foo',
     form: new Form(),
@@ -37,14 +34,14 @@ test('stores important options', function() {
 
   var field = new Field(options);
 
-  same(field.key, options.key);
-  same(field.form, options.form);
-  same(field.model, options.model);
-  same(field.value, options.value);
-  same(field.idPrefix, options.idPrefix);
+  assert.deepEqual(field.key, options.key);
+  assert.deepEqual(field.form, options.form);
+  assert.deepEqual(field.model, options.model);
+  assert.deepEqual(field.value, options.value);
+  assert.deepEqual(field.idPrefix, options.idPrefix);
 });
 
-test('creates the schema', function() {
+QUnit.test('creates the schema', function(assert) {
   this.sinon.spy(Field.prototype, 'createSchema');
 
   var options = {
@@ -54,13 +51,13 @@ test('creates the schema', function() {
 
   var field = new Field(options);
 
-  same(field.createSchema.callCount, 1);
-  same(field.createSchema.args[0][0], options.schema);
-  same(field.schema.type, Form.editors.Text);
-  same(field.schema.title, 'Title');
+  assert.deepEqual(field.createSchema.callCount, 1);
+  assert.deepEqual(field.createSchema.args[0][0], options.schema);
+  assert.deepEqual(field.schema.type, Form.editors.Text);
+  assert.deepEqual(field.schema.title, 'Title');
 });
 
-test('creates the editor', function() {
+QUnit.test('creates the editor', function(assert) {
   this.sinon.spy(Field.prototype, 'createEditor');
 
   var field = new Field({
@@ -68,11 +65,11 @@ test('creates the editor', function() {
     schema: { type: 'Text' }
   });
 
-  same(field.createEditor.callCount, 1);
-  same(field.editor instanceof Form.editors.Text, true);
+  assert.deepEqual(field.createEditor.callCount, 1);
+  assert.deepEqual(field.editor instanceof Form.editors.Text, true);
 });
 
-test('first, uses template defined in options', function() {
+QUnit.test('first, uses template defined in options', function(assert) {
   var optionsTemplate = _.template('<div class="options" data-editor></div>'),
       schemaTemplate = _.template('<div class="schema" data-editor></div>'),
       protoTemplate = _.template('<div class="prototype" data-editor></div>'),
@@ -90,10 +87,10 @@ test('first, uses template defined in options', function() {
     schema: { type: 'Text', template: schemaTemplate }
   });
 
-  same(field.template, optionsTemplate);
+  assert.deepEqual(field.template, optionsTemplate);
 });
 
-test('second, uses template defined in schema', function() {
+QUnit.test('second, uses template defined in schema', function(assert) {
   var schemaTemplate = _.template('<div class="schema" data-editor></div>'),
       protoTemplate = _.template('<div class="prototype" data-editor></div>'),
       constructorTemplate = _.template('<div class="constructor" data-editor></div>');
@@ -109,10 +106,10 @@ test('second, uses template defined in schema', function() {
     schema: { type: 'Text', template: schemaTemplate }
   });
 
-  same(field.template, schemaTemplate);
+  assert.deepEqual(field.template, schemaTemplate);
 });
 
-test('third, uses template defined on prototype', function() {
+QUnit.test('third, uses template defined on prototype', function(assert) {
   var protoTemplate = _.template('<div class="prototype" data-editor></div>'),
       constructorTemplate = _.template('<div class="constructor" data-editor></div>');
 
@@ -127,10 +124,10 @@ test('third, uses template defined on prototype', function() {
     schema: { type: 'Text' }
   });
 
-  same(field.template, protoTemplate);
+  assert.deepEqual(field.template, protoTemplate);
 });
 
-test('fourth, uses template defined on constructor', function() {
+QUnit.test('fourth, uses template defined on constructor', function(assert) {
   var constructorTemplate = _.template('<div class="constructor" data-editor></div>');
 
   var CustomField = Field.extend({
@@ -143,44 +140,64 @@ test('fourth, uses template defined on constructor', function() {
     schema: { type: 'Text' },
   });
 
-  same(field.template, constructorTemplate);
+  assert.deepEqual(field.template, constructorTemplate);
 });
 
+QUnit.test('Uses Backbone.$ not global', function(assert) {
+  var old$ = window.$,
+    exceptionCaught = false;
 
+  window.$ = null;
 
-module('Field#createSchema');
+  try {
+     var options = {
+        key: 'title',
+        schema: { type: 'Text', title: 'Title' }
+      };
 
-test('converts strings to full schemas', function() {
+      var field = new Field(options).render();
+  } catch(e) {
+    exceptionCaught = true;
+  }
+
+  window.$ = old$;
+
+  assert.ok(!exceptionCaught, ' using global \'$\' to render');
+});
+
+QUnit.module('Field#createSchema');
+
+QUnit.test('converts strings to full schemas', function(assert) {
   var field = new Field({ key: 'title' });
 
   var schema = field.createSchema('Text');
 
-  same(schema.type, Form.editors.Text);
-  same(schema.title, 'Title');
+  assert.deepEqual(schema.type, Form.editors.Text);
+  assert.deepEqual(schema.title, 'Title');
 });
 
-test('applies defaults', function() {
+QUnit.test('applies defaults', function(assert) {
   var field = new Field({ key: 'age' });
 
   var schema = field.createSchema({ type: 'Number' });
 
-  same(schema.type, Form.editors.Number);
-  same(schema.title, 'Age');
+  assert.deepEqual(schema.type, Form.editors.Number);
+  assert.deepEqual(schema.title, 'Age');
 });
 
 
 
-module('Field#createEditor', {
-  setup: function() {
+QUnit.module('Field#createEditor', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates a new instance of the Editor defined in the schema', function() {  
+QUnit.test('creates a new instance of the Editor defined in the schema', function(assert) {
   var field = new Field({
     key: 'password',
     schema: { type: 'Password' },
@@ -194,47 +211,47 @@ test('creates a new instance of the Editor defined in the schema', function() {
 
   var editor = field.createEditor(field.schema);
 
-  same(editor instanceof Form.editors.Password, true);
+  assert.deepEqual(editor instanceof Form.editors.Password, true);
 
   //Check correct options were passed
   var optionsArg = Form.editors.Password.prototype.initialize.args[0][0];
 
-  same(optionsArg.schema, field.schema);
-  same(optionsArg.key, field.key);
-  same(optionsArg.id, field.createEditorId());
-  same(optionsArg.form, field.form);
-  same(optionsArg.model, field.model);
-  same(optionsArg.value, field.value);
+  assert.deepEqual(optionsArg.schema, field.schema);
+  assert.deepEqual(optionsArg.key, field.key);
+  assert.deepEqual(optionsArg.id, field.createEditorId());
+  assert.deepEqual(optionsArg.form, field.form);
+  assert.deepEqual(optionsArg.model, field.model);
+  assert.deepEqual(optionsArg.value, field.value);
 });
 
 
 
-module('Field#createEditorId');
+QUnit.module('Field#createEditorId');
 
-test('uses idPrefix if defined', function() {
+QUnit.test('uses idPrefix if defined', function(assert) {
   var stringPrefixField = new Field({
     idPrefix: 'foo_',
     key: 'name'
   });
-  
+
   var numberPrefixField = new Field({
     idPrefix: 123,
     key: 'name'
   });
-  
-  same(numberPrefixField.createEditorId(), '123name');
+
+  assert.deepEqual(numberPrefixField.createEditorId(), '123name');
 });
 
-test('adds no prefix if idPrefix is null', function() {
+QUnit.test('adds no prefix if idPrefix is null', function(assert) {
   var field = new Field({
     idPrefix: null,
     key: 'name'
   });
-  
-  same(field.createEditorId(), 'name');
+
+  assert.deepEqual(field.createEditorId(), 'name');
 });
 
-test('uses model cid if no idPrefix is set', function() {
+QUnit.test('uses model cid if no idPrefix is set', function(assert) {
   var model = new Backbone.Model();
   model.cid = 'foo';
 
@@ -242,41 +259,41 @@ test('uses model cid if no idPrefix is set', function() {
     key: 'name',
     model: model
   });
-  
-  same(field.createEditorId(), 'foo_name');
+
+  assert.deepEqual(field.createEditorId(), 'foo_name');
 });
 
-test('adds no prefix if idPrefix is null and there is no model', function() {
+QUnit.test('adds no prefix if idPrefix is null and there is no model', function(assert) {
   var field = new Field({
     key: 'name'
   });
-  
-  same(field.createEditorId(), 'name');
+
+  assert.deepEqual(field.createEditorId(), 'name');
 });
 
-test('replaces periods with underscores', function() {
+QUnit.test('replaces periods with underscores', function(assert) {
   var field = new Field({
     key: 'user.name.first'
   });
 
-  same(field.createEditorId(), 'user_name_first');
+  assert.deepEqual(field.createEditorId(), 'user_name_first');
 });
 
 
 
-module('Field#createTitle');
+QUnit.module('Field#createTitle');
 
-test('Transforms camelCased string to words', function() {
+QUnit.test('Transforms camelCased string to words', function(assert) {
   var field = new Field({ key: 'camelCasedString' });
 
-  same(field.createTitle(), 'Camel Cased String');
+  assert.deepEqual(field.createTitle(), 'Camel Cased String');
 });
 
 
 
-module('Field#templateData');
+QUnit.module('Field#templateData');
 
-test('returns schema and template data', function() {
+QUnit.test('returns schema and template data', function(assert) {
   var field = new Field({
     key: 'author',
     schema: { type: 'Text', help: 'Help!' }
@@ -284,39 +301,39 @@ test('returns schema and template data', function() {
 
   var data = field.templateData();
 
-  same(data.editorId, 'author');
-  same(data.help, 'Help!');
-  same(data.key, 'author');
-  same(data.title, 'Author');
+  assert.deepEqual(data.editorId, 'author');
+  assert.deepEqual(data.help, 'Help!');
+  assert.deepEqual(data.key, 'author');
+  assert.deepEqual(data.title, 'Author');
 });
 
 
 
-module('Field#render', {
-  setup: function() {
+QUnit.module('Field#render', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
-    this.sinon.stub(Form.editors.Text.prototype, 'render', function() {
+    this.sinon.stub(Form.editors.Text.prototype, 'render', function(assert) {
       this.setElement($('<input class="'+this.key+'" />'));
       return this;
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('only renders the editor if hidden', function() {
+QUnit.test('only renders the editor if noField property is true', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { type: 'Hidden' }
   }).render();
 
-  same(field.$el.prop('tagName'), 'INPUT');
+  assert.deepEqual(field.$el.prop('tagName'), 'INPUT');
 });
 
-test('returns self', function() {
+QUnit.test('returns self', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { type: 'Text' },
@@ -325,76 +342,76 @@ test('returns self', function() {
 
   var returnedValue = field.render();
 
-  same(returnedValue, field);
+  assert.deepEqual(returnedValue, field);
 });
 
-test('with data-editor and data-error placeholders', function() {
+QUnit.test('with data-editor and data-error placeholders', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { type: 'Text' },
     template: _.template('<div><%= title %><b data-editor></b><i data-error></i></div>', null, Form.templateSettings)
   }).render();
 
-  same(field.$el.html(), 'Title<b data-editor=""><input class="title"></b><i data-error=""></i>');
+  assert.deepEqual(field.$el.html(), 'Title<b data-editor=""><input class="title"></b><i data-error=""></i>');
 });
 
 
 
-module('Field#validate', {
-  setup: function() {
+QUnit.module('Field#validate', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('calls setError if validation fails', 4, function() {
+QUnit.test('calls setError if validation fails', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { validators: ['required'] }
   });
 
   this.sinon.spy(field, 'setError');
-  
+
   //Make validation fail
   field.setValue(null);
   var err = field.validate();
-  
-  //Test
-  same(field.setError.callCount, 1);
-  same(field.setError.args[0][0], 'Required');
 
-  same(err.type, 'required');
-  same(err.message, 'Required');
+  //Test
+  assert.deepEqual(field.setError.callCount, 1);
+  assert.deepEqual(field.setError.args[0][0], 'Required');
+
+  assert.deepEqual(err.type, 'required');
+  assert.deepEqual(err.message, 'Required');
 });
 
-test('calls clearError if validation passes', 1, function() {
+QUnit.test('calls clearError if validation passes', function(assert) {
   var field = new Field({
     key: 'title',
     schema: { validators: ['required'] }
   });
 
   this.sinon.spy(field, 'clearError');
-  
+
   //Trigger error to appear
   field.setValue(null);
   field.validate();
-    
+
   //Trigger validation to pass
   field.setValue('ok');
   field.validate();
-  
+
   //Test
-  same(field.clearError.callCount, 1);
+  assert.deepEqual(field.clearError.callCount, 1);
 });
 
 
 
-module('Field#setError');
+QUnit.module('Field#setError');
 
-test('exits if field hasNestedForm', function() {
+QUnit.test('exits if field hasNestedForm', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.errorClassName = 'error';
@@ -403,10 +420,10 @@ test('exits if field hasNestedForm', function() {
   field.render();
   field.setError('foo');
 
-  same(field.$el.hasClass('error'), false);
+  assert.deepEqual(field.$el.hasClass('error'), false);
 });
 
-test('adds error CSS class to field element', function() {
+QUnit.test('adds error CSS class to field element', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.errorClassName = 'ERR';
@@ -414,23 +431,23 @@ test('adds error CSS class to field element', function() {
   field.render();
   field.setError('foo');
 
-  same(field.$el.hasClass('ERR'), true);
+  assert.deepEqual(field.$el.hasClass('ERR'), true);
 });
 
-test('adds error message to data-error placeholder', function() {
+QUnit.test('adds error message to data-error placeholder', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.render();
   field.setError('Some error');
 
-  same(field.$('[data-error]').html(), 'Some error');
+  assert.deepEqual(field.$('[data-error]').html(), 'Some error');
 });
 
 
 
-module('Field#clearError');
+QUnit.module('Field#clearError');
 
-test('removes the error CSS class from field element', function() {
+QUnit.test('removes the error CSS class from field element', function(assert) {
   var field = new Field({ key: 'title' });
 
   field.errorClassName = 'ERR';
@@ -443,10 +460,10 @@ test('removes the error CSS class from field element', function() {
   field.clearError();
 
   //Test
-  same(field.$el.hasClass('ERR'), false);
+  assert.deepEqual(field.$el.hasClass('ERR'), false);
 });
 
-test('removes error message from data-error placeholder', function() {
+QUnit.test('removes error message from data-error placeholder', function(assert) {
   var field = new Field({ key: 'title' });
 
   //Set error
@@ -457,22 +474,22 @@ test('removes error message from data-error placeholder', function() {
   field.clearError();
 
   //Test
-  same(field.$('[data-error]').html(), '');
+  assert.deepEqual(field.$('[data-error]').html(), '');
 });
 
 
 
-module('Field#commit', {
-  setup: function() {
+QUnit.module('Field#commit', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls editor commit', function() {
+QUnit.test('Calls editor commit', function(assert) {
   var field = new Field({
     key: 'title',
     model: new Backbone.Model()
@@ -481,38 +498,38 @@ test('Calls editor commit', function() {
   this.sinon.spy(field.editor, 'commit');
 
   field.commit();
-  
-  same(field.editor.commit.callCount, 1);
+
+  assert.deepEqual(field.editor.commit.callCount, 1);
 });
 
-test('Returns error from validation', function() {
+QUnit.test('Returns error from validation', function(assert) {
   var field = new Field({
     key: 'title',
     model: new Backbone.Model()
   });
 
-  this.sinon.stub(field.editor, 'commit', function() {
+  this.sinon.stub(field.editor, 'commit', function(assert) {
     return { type: 'required' }
   });
 
   var result = field.commit();
-  
-  same(result, { type: 'required' });
+
+  assert.deepEqual(result, { type: 'required' });
 });
 
 
 
-module('Field#getValue', {
-  setup: function() {
+QUnit.module('Field#getValue', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Returns the value from the editor', function() {
+QUnit.test('Returns the value from the editor', function(assert) {
     var field = new Field({
       value: 'The Title',
       key: 'title'
@@ -521,101 +538,212 @@ test('Returns the value from the editor', function() {
     this.sinon.spy(field.editor, 'getValue');
 
     var result = field.getValue();
-    
-    same(field.editor.getValue.callCount, 1);
-    same(result, 'The Title');
+
+    assert.deepEqual(field.editor.getValue.callCount, 1);
+    assert.deepEqual(result, 'The Title');
 });
 
 
 
-module('Field#setValue', {
-  setup: function() {
+QUnit.module('Field#setValue', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Passes the new value to the editor', function() {
+QUnit.test('Passes the new value to the editor', function(assert) {
     var field = new Field({ key: 'title' });
 
     this.sinon.spy(field.editor, 'setValue');
-    
+
     field.setValue('New Title');
-    
-    same(field.editor.setValue.callCount, 1);
-    same(field.editor.setValue.args[0][0], 'New Title');
+
+    assert.deepEqual(field.editor.setValue.callCount, 1);
+    assert.deepEqual(field.editor.setValue.args[0][0], 'New Title');
 });
 
 
 
-module('Field#focus', {
-  setup: function() {
+QUnit.module('Field#focus', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls focus on editor', function() {
+QUnit.test('Calls focus on editor', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(field.editor, 'focus');
-  
+
   field.focus();
-  
-  same(field.editor.focus.callCount, 1);
+
+  assert.deepEqual(field.editor.focus.callCount, 1);
 });
 
 
 
-module('Field#blur', {
-  setup: function() {
+QUnit.module('Field#blur', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Calls focus on editor', function() {
+QUnit.test('Calls focus on editor', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(field.editor, 'blur');
-  
+
   field.blur();
-  
-  same(field.editor.blur.callCount, 1);
+
+  assert.deepEqual(field.editor.blur.callCount, 1);
 });
 
 
-
-module('Field#remove', {
-  setup: function() {
+/*
+QUnit.module('Field#disable', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Removes the editor', function() {
+QUnit.test('Calls disable on editor if method exists', function(assert) {
+  Form.editors.Disabler = Form.editors.Text.extend({
+    disable: function(){}
+  });
+  var field = new Field({
+    schema: { type: "Disabler" },
+    key: 'title'
+  });
+
+  this.sinon.spy(field.editor, 'disable');
+
+  field.disable();
+
+  assert.deepEqual(field.editor.disable.callCount, 1);
+});
+
+QUnit.test('If disable method does not exist on editor, disable all inputs inside it', function(assert) {
+  var field = new Field({ key: 'title' });
+
+  field.render();
+
+  field.disable();
+
+  assert.deepEqual(field.$(":input").is(":disabled"),true);
+});
+
+QUnit.test('Will disable all inputs inside editor by default', function(assert) {
+  var field = new Field({ key: 'title',
+    schema: {
+      type: 'DateTime',
+      value: Date.now()
+    }
+  });
+
+  field.render();
+
+  field.disable();
+
+  assert.deepEqual(field.$("select").is(":disabled"),true);
+  assert.deepEqual(field.$("input").is(":disabled"),true);
+});
+
+QUnit.module('Field#enable', {
+  beforeEach: function() {
+    this.sinon = sinon.sandbox.create();
+  },
+
+  afterEach: function() {
+    this.sinon.restore();
+  }
+});
+
+QUnit.test('Calls enable on editor if method exists', function(assert) {
+  Form.editors.Enabler = Form.editors.Text.extend({
+    enable: function(){}
+  });
+  var field = new Field({
+    schema: { type: "Enabler" },
+    key: 'title'
+  });
+
+  this.sinon.spy(field.editor, 'enable');
+
+  field.enable();
+
+  assert.deepEqual(field.editor.enable.callCount, 1);
+});
+
+QUnit.test('If enable method does not exist on editor, enable all inputs inside it', function(assert) {
+  var field = new Field({ key: 'title' });
+
+  field.$(":input").attr("disabled",true);
+
+  field.render();
+
+  field.enable();
+
+  assert.deepEqual(field.$(":input").is(":disabled"),false);
+});
+
+QUnit.test('Will enable all inputs inside editor by default', function(assert) {
+  var field = new Field({ key: 'title',
+    schema: {
+      type: 'DateTime',
+      value: Date.now()
+    }
+  });
+
+  field.$(":input").attr("disabled",true);
+
+  field.render();
+
+  field.enable();
+
+  assert.deepEqual(field.$("select").is(":disabled"),false);
+  assert.deepEqual(field.$("input").is(":disabled"),false);
+});
+*/
+
+
+
+QUnit.module('Field#remove', {
+  beforeEach: function() {
+    this.sinon = sinon.sandbox.create();
+  },
+
+  afterEach: function() {
+    this.sinon.restore();
+  }
+});
+
+QUnit.test('Removes the editor', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(field.editor, 'remove');
 
   field.remove();
 
-  same(field.editor.remove.callCount, 1);
+  assert.deepEqual(field.editor.remove.callCount, 1);
 });
 
-test('Removes self', function() {
+QUnit.test('Removes self', function(assert) {
   var field = new Field({ key: 'title' });
 
   this.sinon.spy(Backbone.View.prototype, 'remove');
@@ -623,8 +751,36 @@ test('Removes self', function() {
   field.remove();
 
   //Called once for editor and once for field:
-  same(Backbone.View.prototype.remove.callCount, 2);
+  assert.deepEqual(Backbone.View.prototype.remove.callCount, 2);
 });
 
+
+
+QUnit.module('Field#escape title text');
+
+QUnit.test('Title HTML gets escaped by default', function(assert) {
+  var field = new Field({
+    key: 'XSS',
+    schema: {
+      title: '      "/><script>throw("XSS Success");</script>      '
+    }
+  }).render();
+
+  assert.deepEqual( field.$('label').text(), '              \"/><script>throw(\"XSS Success\");</script>            ');
+  assert.deepEqual( field.$('label').html(), '              \"/&gt;&lt;script&gt;throw(\"XSS Success\");&lt;/script&gt;            ');
+});
+
+QUnit.test('TitleHTML property can be set to true to allow HTML through', function(assert) {
+  var field = new Field({
+    key: 'XSS',
+    schema: {
+      titleHTML: '<b>some HTML</b>',
+      title: 'will be ignored'
+    }
+  }).render();
+
+  assert.deepEqual(field.$('label').text(), '        some HTML              ');
+  assert.deepEqual(field.$('label').html(), '        <b>some HTML</b>              ');
+});
 
 })(Backbone.Form, Backbone.Form.Field);

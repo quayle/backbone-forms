@@ -1,22 +1,40 @@
 ;(function(Form, Editor) {
 
-  module('TextArea');
-
-  var same = deepEqual;
+  QUnit.module('TextArea');
 
 
-  module('TextArea#initialize');
+  QUnit.module('TextArea#initialize');
 
-  test('sets tag type', function() {
+  QUnit.test('sets tag type', function(assert) {
     var editor = new Editor();
 
-    ok(editor.$el.is('textarea'));
+    assert.ok(editor.$el.is('textarea'));
   });
 
-  test('does not set type attribute', function() {
+  QUnit.test('does not set type attribute', function(assert) {
     var editor = new Editor();
 
-    same(editor.$el.attr('type'), undefined);
+    assert.deepEqual(editor.$el.attr('type'), undefined);
+  });
+
+
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
+    var old$ = window.$,
+      exceptionCaught = false;
+
+    window.$ = null;
+
+    try {
+      var editor = new Editor({
+        value: 'Test'
+      }).render();
+    } catch(e) {
+      exceptionCaught = true;
+    }
+
+    window.$ = old$;
+
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
   });
 
 

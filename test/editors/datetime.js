@@ -1,108 +1,106 @@
 ;(function(Form, Editor) {
 
-  module('DateTime', {
-    setup: function() {
+  QUnit.module('DateTime', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
     }
   });
 
-  var same = deepEqual;
-
   var DateEditor = Form.editors.Date;
 
-  test('initialize() - default value - now (to the hour)', function() {
+  QUnit.test('initialize() - default value - now (to the hour)', function(assert) {
     var editor = new Editor;
 
     var now = new Date,
         value = editor.value;
 
-    same(value.getFullYear(), now.getFullYear());
-    same(value.getMonth(), now.getMonth());
-    same(value.getDate(), now.getDate());
-    same(value.getHours(), now.getHours());
-    same(value.getMinutes(), now.getMinutes());
+    assert.deepEqual(value.getFullYear(), now.getFullYear());
+    assert.deepEqual(value.getMonth(), now.getMonth());
+    assert.deepEqual(value.getDate(), now.getDate());
+    assert.deepEqual(value.getHours(), now.getHours());
+    assert.deepEqual(value.getMinutes(), now.getMinutes());
   });
 
-  test('initialize() - default options and schema', function() {
+  QUnit.test('initialize() - default options and schema', function(assert) {
     var editor = new Editor();
 
     var schema = editor.schema,
         options = editor.options;
 
     //Options should default to those stored on the static class
-    same(editor.options.DateEditor, Editor.DateEditor);
+    assert.deepEqual(editor.options.DateEditor, Editor.DateEditor);
 
     //Schema options
-    same(schema.minsInterval, 15);
+    assert.deepEqual(schema.minsInterval, 15);
   });
 
-  test('initialize() - creates a Date instance', function() {
+  QUnit.test('initialize() - creates a Date instance', function(assert) {
     var spy = this.sinon.spy(Editor, 'DateEditor');
 
     var options = {},
         editor = new Editor(options);
 
-    ok(editor.dateEditor instanceof Editor.DateEditor, 'Created instance of date editor');
-    same(spy.lastCall.args[0], options);
+    assert.ok(editor.dateEditor instanceof Editor.DateEditor, 'Created instance of date editor');
+    assert.deepEqual(spy.lastCall.args[0], options);
   });
 
-  test('render() - calls setValue', function() {
+  QUnit.test('render() - calls setValue', function(assert) {
     var date = new Date,
         editor = new Editor({ value: date }),
         spy = this.sinon.spy(editor, 'setValue');
 
     editor.render();
 
-    ok(spy.calledWith(date), 'Called setValue');
+    assert.ok(spy.calledWith(date), 'Called setValue');
   });
 
-  test('render() - creates hours and mins', function() {
+  QUnit.test('render() - creates hours and mins', function(assert) {
     var editor = new Editor().render();
 
     //Test DOM elements
-    same(editor.$hour.attr('data-type'), 'hour');
-    same(editor.$hour.find('option').length, 24);
-    same(editor.$hour.find('option:first').val(), '0');
-    same(editor.$hour.find('option:last').val(), '23');
-    same(editor.$hour.find('option:first').html(), '00');
-    same(editor.$hour.find('option:last').html(), '23');
+    assert.deepEqual(editor.$hour.attr('data-type'), 'hour');
+    assert.deepEqual(editor.$hour.find('option').length, 24);
+    assert.deepEqual(editor.$hour.find('option:first').val(), '0');
+    assert.deepEqual(editor.$hour.find('option:last').val(), '23');
+    assert.deepEqual(editor.$hour.find('option:first').html(), '00');
+    assert.deepEqual(editor.$hour.find('option:last').html(), '23');
 
-    same(editor.$min.attr('data-type'), 'min');
-    same(editor.$min.find('option').length, 4);
-    same(editor.$min.find('option:first').val(), '0');
-    same(editor.$min.find('option:last').val(), '45');
-    same(editor.$min.find('option:first').html(), '00');
-    same(editor.$min.find('option:last').html(), '45');
+    assert.deepEqual(editor.$min.attr('data-type'), 'min');
+    assert.deepEqual(editor.$min.find('option').length, 4);
+    assert.deepEqual(editor.$min.find('option:first').val(), '0');
+    assert.deepEqual(editor.$min.find('option:last').val(), '45');
+    assert.deepEqual(editor.$min.find('option:first').html(), '00');
+    assert.deepEqual(editor.$min.find('option:last').html(), '45');
   });
 
-  test('render() - creates hours and mins - with custom minsInterval', function() {
+  QUnit.test('render() - creates hours and mins - with custom minsInterval', function(assert) {
     var editor = new Editor({
         schema: { minsInterval: 1 }
     }).render();
 
-    same(editor.$min.attr('data-type'), 'min');
-    same(editor.$min.find('option').length, 60);
-    same(editor.$min.find('option:first').val(), '0');
-    same(editor.$min.find('option:last').val(), '59');
-    same(editor.$min.find('option:first').html(), '00');
-    same(editor.$min.find('option:last').html(), '59');
+    assert.deepEqual(editor.$min.attr('data-type'), 'min');
+    assert.deepEqual(editor.$min.find('option').length, 60);
+    assert.deepEqual(editor.$min.find('option:first').val(), '0');
+    assert.deepEqual(editor.$min.find('option:last').val(), '59');
+    assert.deepEqual(editor.$min.find('option:first').html(), '00');
+    assert.deepEqual(editor.$min.find('option:last').html(), '59');
   });
 
-  test('getValue() - returns a Date', function() {
+  QUnit.test('getValue() - returns a Date', function(assert) {
     var date = new Date(2010, 5, 5, 14, 30),
         editor = new Editor({ value: date }).render();
 
     var value = editor.getValue();
 
-    same(value.constructor.name, 'Date');
-    same(value.getTime(), date.getTime());
+    assert.deepEqual(value.constructor.name, 'Date');
+    assert.deepEqual(value.getTime(), date.getTime());
   });
 
-  test('setValue()', function() {
+  QUnit.test('setValue()', function(assert) {
     var editor = new Editor().render();
 
     var spy = this.sinon.spy(editor.dateEditor, 'setValue');
@@ -112,12 +110,12 @@
     editor.setValue(date);
 
     //Should set value on date editor
-    same(spy.lastCall.args[0], date);
+    assert.deepEqual(spy.lastCall.args[0], date);
 
-    same(editor.getValue().getTime(), date.getTime());
+    assert.deepEqual(editor.getValue().getTime(), date.getTime());
   });
 
-  test('updates the hidden input when a value changes', function() {
+  QUnit.test('updates the hidden input when a value changes', function(assert) {
     var date = new Date();
 
     var editor = new Editor({
@@ -130,12 +128,12 @@
 
     var hiddenVal = new Date(editor.$hidden.val());
 
-    same(editor.getValue().getTime(), hiddenVal.getTime());
-    same(hiddenVal.getHours(), 5);
-    same(hiddenVal.getMinutes(), 15);
+    assert.deepEqual(editor.getValue().getTime(), hiddenVal.getTime());
+    assert.deepEqual(hiddenVal.getHours(), 5);
+    assert.deepEqual(hiddenVal.getMinutes(), 15);
   });
 
-  test('remove() - removes the date editor and self', function() {
+  QUnit.test('remove() - removes the date editor and self', function(assert) {
     this.sinon.spy(DateEditor.prototype, 'remove');
     this.sinon.spy(Form.editors.Base.prototype, 'remove');
 
@@ -143,14 +141,31 @@
 
     editor.remove();
 
-    ok(DateEditor.prototype.remove.calledOnce);
-    ok(Form.editors.Base.prototype.remove.calledOnce);
+    assert.ok(DateEditor.prototype.remove.calledOnce);
+    assert.ok(Form.editors.Base.prototype.remove.calledOnce);
   });
 
+  QUnit.test('Uses Backbone.$ not global', function(assert) {
+    var old$ = window.$,
+      exceptionCaught = false;
 
+    window.$ = null;
 
-  module('DateTime events', {
-    setup: function() {
+    try {
+      var editor = new Editor({
+        value: new Date()
+      }).render();
+    } catch(e) {
+      exceptionCaught = true;
+    }
+
+    window.$ = old$;
+
+    assert.ok(!exceptionCaught, ' using global \'$\' to render');
+  });
+
+  QUnit.module('DateTime events', {
+    beforeEach: function() {
       this.sinon = sinon.sandbox.create();
 
       this.editor = new Editor().render();
@@ -158,30 +173,33 @@
       $('body').append(this.editor.el);
     },
 
-    teardown: function() {
+    afterEach: function() {
       this.sinon.restore();
 
       this.editor.remove();
     }
   });
 
-  test("focus() - gives focus to editor and its first selectbox", function() {
+  QUnit.test("focus() - gives focus to editor and its first selectbox", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
 
-    ok(editor.hasFocus);
-    ok(editor.$('select').first().is(':focus'));
+    assert.ok(editor.hasFocus);
+    assert.ok(editor.$('select').first().is(':focus'));
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      start();
+      done();
     }, 0);
   });
 
-  test("focus() - triggers the 'focus' event", function() {
+  QUnit.test("focus() - triggers the 'focus' event", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -190,36 +208,38 @@
 
     editor.focus();
 
-    stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
       editor.blur();
 
       setTimeout(function() {
-        start();
+        done();
       }, 0);
     }, 0);
   });
 
-  test("blur() - removes focus from the editor and its focused selectbox", function() {
+  QUnit.test("blur() - removes focus from the editor and its focused selectbox", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      ok(!editor.hasFocus);
-      ok(!editor.$('input[type=selectbox]').first().is(':focus'));
+      assert.ok(!editor.hasFocus);
+      assert.ok(!editor.$('input[type=selectbox]').first().is(':focus'));
 
-      start();
+      done();
     }, 0);
   });
 
-  test("blur() - triggers the 'blur' event", function() {
+  QUnit.test("blur() - triggers the 'blur' event", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
@@ -230,16 +250,15 @@
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
-      start();
+      done();
     }, 0);
   });
 
-  test("'change' event - bubbles up from the selectbox", function() {
+  QUnit.test("'change' event - bubbles up from the selectbox", function(assert) {
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -249,11 +268,13 @@
     editor.$("select").first().val('31');
     editor.$("select").first().change();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
   });
 
-  test("'focus' event - bubbles up from selectbox when editor doesn't have focus", function() {
+  QUnit.test("'focus' event - bubbles up from selectbox when editor doesn't have focus", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -262,18 +283,19 @@
 
     editor.$("select").first().focus();
 
-    ok(spy.called);
-    ok(spy.calledWith(editor));
+    assert.ok(spy.called);
+    assert.ok(spy.calledWith(editor));
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      start();
+      done();
     }, 0);
   });
 
-  test("'focus' event - doesn't bubble up from selectbox when editor already has focus", function() {
+  QUnit.test("'focus' event - doesn't bubble up from selectbox when editor already has focus", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
@@ -284,17 +306,18 @@
 
     editor.$("select").focus();
 
-    ok(!spy.called);
+    assert.ok(!spy.called);
 
     editor.blur();
 
-    stop();
     setTimeout(function() {
-      start();
+      done();
     }, 0);
   });
 
-  test("'blur' event - bubbles up from selectbox when editor has focus and we're not focusing on another one of the editor's selectboxes", function() {
+  QUnit.test("'blur' event - bubbles up from selectbox when editor has focus and we're not focusing on another one of the editor's selectboxes", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
@@ -305,16 +328,17 @@
 
     editor.$("select").first().blur();
 
-    stop();
     setTimeout(function() {
-      ok(spy.called);
-      ok(spy.calledWith(editor));
+      assert.ok(spy.called);
+      assert.ok(spy.calledWith(editor));
 
-      start();
+      done();
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from selectbox when editor has focus and we're focusing on another one of the editor's selectboxes", function() {
+  QUnit.test("'blur' event - doesn't bubble up from selectbox when editor has focus and we're focusing on another one of the editor's selectboxes", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     editor.focus();
@@ -326,19 +350,20 @@
     editor.$("select:eq(0)").blur();
     editor.$("select:eq(1)").focus();
 
-    stop();
     setTimeout(function() {
-      ok(!spy.called);
+      assert.ok(!spy.called);
 
       editor.blur();
 
       setTimeout(function() {
-        start();
+        done();
       }, 0);
     }, 0);
   });
 
-  test("'blur' event - doesn't bubble up from selectbox when editor doesn't have focus", function() {
+  QUnit.test("'blur' event - doesn't bubble up from selectbox when editor doesn't have focus", function(assert) {
+    const done = assert.async();
+
     var editor = this.editor;
 
     var spy = this.sinon.spy();
@@ -347,11 +372,10 @@
 
     editor.$("select").blur();
 
-    stop();
     setTimeout(function() {
-      ok(!spy.called);
+      assert.ok(!spy.called);
 
-      start();
+      done();
     }, 0);
   });
 

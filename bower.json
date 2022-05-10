@@ -3,7 +3,10 @@
   "version": "0.14.1",
   "main": "distribution/backbone-forms.js",
   "dependencies": {
-    "backbone": "1.0"
+    "backbone": ">=1.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "lodash": "~4.17.21",
+    "backbone-deep-model": "~0.10.4"
+  }
 }

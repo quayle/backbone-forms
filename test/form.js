@@ -1,19 +1,25 @@
 ;(function(Form) {
 
-var same = deepEqual;
-
-
-module('Form#initialize', {
-  setup: function() {
+QUnit.module('Form#initialize', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('prefers schema from options over model', function() {
+QUnit.test('accepts an errorClassName in schema', function(assert) {
+  var form = new Form({
+    schema: {
+      name: {type: 'Text', errorClassName: 'custom-error'}
+    }
+  });
+  assert.deepEqual(form.fields.name.errorClassName, 'custom-error')
+});
+
+QUnit.test('prefers schema from options over model', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -25,10 +31,10 @@ test('prefers schema from options over model', function() {
     model: model
   });
 
-  same(form.schema, schema);
+  assert.deepEqual(form.schema, schema);
 });
 
-test('prefers schema from options over model - when schema is a function', function() {
+QUnit.test('prefers schema from options over model - when schema is a function', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -42,10 +48,10 @@ test('prefers schema from options over model - when schema is a function', funct
     model: model
   });
 
-  same(form.schema, schema());
+  assert.deepEqual(form.schema, schema());
 });
 
-test('uses from model if provided', function() {
+QUnit.test('uses schema from model if provided', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = { fromModel: 'Text' };
@@ -54,10 +60,24 @@ test('uses from model if provided', function() {
     model: model
   });
 
-  same(form.schema, model.schema);
+  assert.deepEqual(form.schema, model.schema);
 });
 
-test('uses from model if provided - when schema is a function', function() {
+QUnit.test('uses fieldsets from model if provided', function(assert) {
+  var model = new Backbone.Model();
+
+  model.schema = { fromModel: 'Text' };
+  model.fieldsets = [{legend: 'from model',
+                      fields: ['fromModel']}];
+
+  var form = new Form({
+    model: model
+  });
+
+  assert.deepEqual(form.fieldsets[0].schema, model.fieldsets[0]);
+});
+
+QUnit.test('uses from model if provided - when schema is a function', function(assert) {
   var model = new Backbone.Model();
 
   model.schema = function() {
@@ -68,10 +88,10 @@ test('uses from model if provided - when schema is a function', function() {
     model: model
   });
 
-  same(form.schema, model.schema());
+  assert.deepEqual(form.schema, model.schema());
 });
 
-test('stores important options', function() {
+QUnit.test('stores important options', function(assert) {
   var options = {
     model: new Backbone.Model(),
     data: { foo: 1 },
@@ -81,13 +101,13 @@ test('stores important options', function() {
 
   var form = new Form(options);
 
-  same(form.model, options.model);
-  same(form.data, options.data);
-  same(form.idPrefix, options.idPrefix);
-  same(form.templateData, options.templateData);
+  assert.deepEqual(form.model, options.model);
+  assert.deepEqual(form.data, options.data);
+  assert.deepEqual(form.idPrefix, options.idPrefix);
+  assert.deepEqual(form.templateData, options.templateData);
 });
 
-test('overrides defaults', function() {
+QUnit.test('overrides defaults', function(assert) {
   var options = {
     template: _.template('<b></b>'),
     Fieldset: Form.Fieldset.extend(),
@@ -97,13 +117,13 @@ test('overrides defaults', function() {
 
   var form = new Form(options);
 
-  same(form.template, options.template);
-  same(form.Fieldset, options.Fieldset);
-  same(form.Field, options.Field);
-  same(form.NestedField, options.NestedField);
+  assert.deepEqual(form.template, options.template);
+  assert.deepEqual(form.Fieldset, options.Fieldset);
+  assert.deepEqual(form.Field, options.Field);
+  assert.deepEqual(form.NestedField, options.NestedField);
 });
 
-test('prefers template stored on form prototype over one stored on class', function() {
+QUnit.test('prefers template stored on form prototype over one stored on class', function(assert) {
   var oldTemplate = Form.template;
 
   var newTemplate = _.template('<form><b data-fieldsets></b></div>');
@@ -112,12 +132,12 @@ test('prefers template stored on form prototype over one stored on class', funct
 
   var form = new Form();
 
-  same(form.template, newTemplate);
+  assert.deepEqual(form.template, newTemplate);
 
   delete Form.prototype.template;
 });
 
-test('uses template stored on form class', function() {
+QUnit.test('uses template stored on form class', function(assert) {
   var oldTemplate = Form.template;
 
   var newTemplate = _.template('<form><b data-fieldsets></b></div>');
@@ -126,12 +146,12 @@ test('uses template stored on form class', function() {
 
   var form = new Form();
 
-  same(form.template, newTemplate);
+  assert.deepEqual(form.template, newTemplate);
 
   Form.template = oldTemplate;
 });
 
-test('uses fieldset and field classes stored on prototype over those stored on form class', function() {
+QUnit.test('uses fieldset and field classes stored on prototype over those stored on form class', function(assert) {
   var DifferentField = function () {};
   var DifferentFieldset = function () {};
   var DifferentNestedField = function () {};
@@ -142,68 +162,68 @@ test('uses fieldset and field classes stored on prototype over those stored on f
 
   var form = new Form();
 
-  same(form.Fieldset, DifferentFieldset);
-  same(form.Field, DifferentField);
-  same(form.NestedField, DifferentNestedField);
+  assert.deepEqual(form.Fieldset, DifferentFieldset);
+  assert.deepEqual(form.Field, DifferentField);
+  assert.deepEqual(form.NestedField, DifferentNestedField);
 
   delete Form.prototype.Field;
   delete Form.prototype.Fieldset;
   delete Form.prototype.NestedField;
 });
 
-test('uses fieldset and field classes stored on form class', function() {
+QUnit.test('uses fieldset and field classes stored on form class', function(assert) {
   var form = new Form();
 
-  same(form.Fieldset, Form.Fieldset);
-  same(form.Field, Form.Field);
-  same(form.NestedField, Form.NestedField);
+  assert.deepEqual(form.Fieldset, Form.Fieldset);
+  assert.deepEqual(form.Field, Form.Field);
+  assert.deepEqual(form.NestedField, Form.NestedField);
 });
 
-test('sets selectedFields - with options.fields', function() {
+QUnit.test('sets selectedFields - with options.fields', function(assert) {
   var options = {
     fields: ['foo', 'bar']
   };
 
   var form = new Form(options);
 
-  same(form.selectedFields, options.fields);
+  assert.deepEqual(form.selectedFields, options.fields);
 });
 
-test('sets selectedFields - defaults to using all fields in schema', function() {
+QUnit.test('sets selectedFields - defaults to using all fields in schema', function(assert) {
   var form = new Form({
     schema: { name: 'Text', age: 'Number' }
   });
 
-  same(form.selectedFields, ['name', 'age']);
+  assert.deepEqual(form.selectedFields, ['name', 'age']);
 });
 
-test('creates fields', function() {
+QUnit.test('creates fields', function(assert) {
   this.sinon.spy(Form.prototype, 'createField');
 
   var form = new Form({
     schema: { name: 'Text', age: { type: 'Number' } }
   });
 
-  same(form.createField.callCount, 2);
-  same(_.keys(form.fields), ['name', 'age']);
+  assert.deepEqual(form.createField.callCount, 2);
+  assert.deepEqual(_.keys(form.fields), ['name', 'age']);
 
   //Check createField() was called correctly
   var args = form.createField.args[0],
       keyArg = args[0],
       schemaArg = args[1];
 
-  same(keyArg, 'name');
-  same(schemaArg, 'Text');
+  assert.deepEqual(keyArg, 'name');
+  assert.deepEqual(schemaArg, 'Text');
 
   var args = form.createField.args[1],
       keyArg = args[0],
       schemaArg = args[1];
 
-  same(keyArg, 'age');
-  same(schemaArg, { type: 'Number' });
+  assert.deepEqual(keyArg, 'age');
+  assert.deepEqual(schemaArg, { type: 'Number' });
 });
 
-test('creates fieldsets - first with "fieldsets" option', function() {
+QUnit.test('creates fieldsets - first with "fieldsets" option', function(assert) {
   this.sinon.spy(Form.prototype, 'createFieldset');
 
   var MyForm = Form.extend({
@@ -225,22 +245,22 @@ test('creates fieldsets - first with "fieldsets" option', function() {
     ]
   });
 
-  same(form.createFieldset.callCount, 2);
-  same(form.fieldsets.length, 2);
+  assert.deepEqual(form.createFieldset.callCount, 2);
+  assert.deepEqual(form.fieldsets.length, 2);
 
   //Check createFieldset() was called correctly
   var args = form.createFieldset.args[0],
       schemaArg = args[0];
 
-  same(schemaArg, ['name', 'age']);
+  assert.deepEqual(schemaArg, ['name', 'age']);
 
   var args = form.createFieldset.args[1],
       schemaArg = args[0];
 
-  same(schemaArg, ['password']);
+  assert.deepEqual(schemaArg, ['password']);
 });
 
-test('creates fieldsets - second with prototype.fieldsets', function() {
+QUnit.test('creates fieldsets - second with prototype.fieldsets', function(assert) {
   this.sinon.spy(Form.prototype, 'createFieldset');
 
   var MyForm = Form.extend({
@@ -257,17 +277,17 @@ test('creates fieldsets - second with prototype.fieldsets', function() {
 
   var form = new MyForm();
 
-  same(form.createFieldset.callCount, 1);
-  same(form.fieldsets.length, 1);
+  assert.deepEqual(form.createFieldset.callCount, 1);
+  assert.deepEqual(form.fieldsets.length, 1);
 
   //Check createFieldset() was called correctly
   var args = form.createFieldset.args[0],
       schemaArg = args[0];
 
-  same(schemaArg, ['age', 'name']);
+  assert.deepEqual(schemaArg, ['age', 'name']);
 });
 
-test('creates fieldsets - defaults to all fields in one fieldset', function() {
+QUnit.test('creates fieldsets - defaults to all fields in one fieldset', function(assert) {
   this.sinon.spy(Form.prototype, 'createFieldset');
 
   var form = new Form({
@@ -278,27 +298,27 @@ test('creates fieldsets - defaults to all fields in one fieldset', function() {
     }
   });
 
-  same(form.createFieldset.callCount, 1);
-  same(form.fieldsets.length, 1);
+  assert.deepEqual(form.createFieldset.callCount, 1);
+  assert.deepEqual(form.fieldsets.length, 1);
 
   //Check createFieldset() was called correctly
   var args = form.createFieldset.args[0],
       schemaArg = args[0];
 
-  same(schemaArg, ['name', 'age', 'password']);
+  assert.deepEqual(schemaArg, ['name', 'age', 'password']);
 });
 
-test('submitButton option: missing - does not create button', function() {
+QUnit.test('submitButton option: missing - does not create button', function(assert) {
   var form = new Form({
     schema: { name: 'Text' }
   }).render();
 
   var $btn = form.$('button');
 
-  same($btn.length, 0);
+  assert.deepEqual($btn.length, 0);
 });
 
-test('submitButton option: false - does not create button', function() {
+QUnit.test('submitButton option: false - does not create button', function(assert) {
   var form = new Form({
     schema: { name: 'Text' },
     submitButton: false
@@ -306,10 +326,10 @@ test('submitButton option: false - does not create button', function() {
 
   var $btn = form.$('button');
 
-  same($btn.length, 0);
+  assert.deepEqual($btn.length, 0);
 });
 
-test('submitButton option: string - creates button with given text', function() {
+QUnit.test('submitButton option: string - creates button with given text', function(assert) {
   var form = new Form({
     schema: { name: 'Text' },
     submitButton: 'Next'
@@ -317,23 +337,128 @@ test('submitButton option: string - creates button with given text', function() 
 
   var $btn = form.$('button[type="submit"]');
 
-  same($btn.length, 1);
-  same($btn.html(), 'Next');
+  assert.deepEqual($btn.length, 1);
+  assert.deepEqual($btn.html(), 'Next');
+});
+
+QUnit.test('submitButton still rendered properly if _ templateSettings are changed', function(assert) {
+    var oldSettings = _.templateSettings;
+
+    _.templateSettings = {
+        evaluate: /\{\{([\s\S]+?)\}\}/g,
+        interpolate: /\{\{=([\s\S]+?)\}\}/g,
+        escape: /\{\{-([\s\S]+?)\}\}/g
+    };
+
+  var form = new Form({
+    schema: { name: 'Text' },
+    submitButton: 'Next'
+  }).render();
+
+  var $btn = form.$('button[type="submit"]');
+
+  assert.deepEqual($btn.length, 1);
+  assert.deepEqual($btn.html(), 'Next');
+  assert.notDeepEqual( _.templateSettings, Form.templateSettings, "Template settings should be different");
+
+  _.templateSettings = oldSettings;
+});
+
+QUnit.test('Uses Backbone.$ not global', function(assert) {
+  var old$ = window.$,
+    exceptionCaught = false;
+
+  window.$ = null;
+
+  try {
+     var form = new Form({
+      schema: { name: 'Text' },
+      submitButton: 'Next'
+    }).render();
+  } catch(e) {
+    exceptionCaught = true;
+  }
+
+  window.$ = old$;
+
+  assert.ok(!exceptionCaught, ' using global \'$\' to render');
 });
 
 
+QUnit.module('Form#EditorValues');
 
-module('Form#createFieldset', {
-  setup: function() {
+QUnit.test('Form with editor with basic schema should return defaultValues', function(assert) {
+  var form = new Form({
+    schema: {
+      name: {
+        type: 'Text'
+      }
+    }
+  }).render();
+
+  assert.deepEqual( form.fields.name.editor.value, "" );
+  assert.deepEqual( form.getValue(), { name: "" } );
+});
+
+QUnit.test('Form with model with defaults should return defaults', function(assert) {
+  var model = Backbone.Model.extend({
+    defaults: { name: "Default Name" }
+  });
+  var form = new Form({
+    schema: {
+      name: {
+        type: 'Text'
+      }
+    },
+    model: new model()
+  }).render();
+
+  assert.deepEqual( form.fields.name.editor.value, "Default Name" );
+  assert.deepEqual( form.getValue(), { name: "Default Name" } );
+});
+
+QUnit.test('Form with data passed in should return data', function(assert) {
+  var form = new Form({
+    schema: {
+      name: {
+        type: 'Text'
+      }
+    },
+    data: { name: "Default Name" }
+  }).render();
+
+  assert.deepEqual( form.fields.name.editor.value, "Default Name" );
+  assert.deepEqual( form.getValue(), { name: "Default Name" } );
+});
+
+QUnit.test('Form should not clobber defaultValue of Editors', function(assert) {
+  Form.editors.DefaultText = Form.editors.Text.extend({
+    defaultValue: "Default Name"
+  });
+  var form = new Form({
+    schema: {
+      name: {
+        type: 'DefaultText'
+      }
+    }
+  }).render();
+
+  assert.deepEqual( form.fields.name.editor.value, "Default Name" );
+  assert.deepEqual( form.getValue(), { name: "Default Name" } );
+});
+
+
+QUnit.module('Form#createFieldset', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates a new instance of the Fieldset defined on the form', function() {
+QUnit.test('creates a new instance of the Fieldset defined on the form', function(assert) {
   var MockFieldset = Backbone.View.extend();
 
   var form = new Form({
@@ -345,19 +470,19 @@ test('creates a new instance of the Fieldset defined on the form', function() {
 
   var fieldset = form.createFieldset(['name', 'age']);
 
-  same(fieldset instanceof MockFieldset, true);
+  assert.deepEqual(fieldset instanceof MockFieldset, true);
 
   //Check correct options were passed
   var optionsArg = MockFieldset.prototype.initialize.args[0][0];
 
-  same(optionsArg.schema, ['name', 'age']);
-  same(optionsArg.fields, form.fields);
+  assert.deepEqual(optionsArg.schema, ['name', 'age']);
+  assert.deepEqual(optionsArg.fields, form.fields);
 });
 
 
 
-module('Form#createField', {
-  setup: function() {
+QUnit.module('Form#createField', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
     this.MockField = Backbone.View.extend({
@@ -365,12 +490,12 @@ module('Form#createField', {
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('creates a new instance of the Field defined on the form - with model', function() {
+QUnit.test('creates a new instance of the Field defined on the form - with model', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -383,19 +508,19 @@ test('creates a new instance of the Field defined on the form - with model', fun
 
   var field = form.createField('name', { type: 'Text' });
 
-  same(field instanceof MockField, true);
+  assert.deepEqual(field instanceof MockField, true);
 
   //Check correct options were passed
   var optionsArg = MockField.prototype.initialize.args[0][0];
 
-  same(optionsArg.form, form);
-  same(optionsArg.key, 'name');
-  same(optionsArg.schema, { type: 'Text' });
-  same(optionsArg.idPrefix, 'foo');
-  same(optionsArg.model, form.model);
+  assert.deepEqual(optionsArg.form, form);
+  assert.deepEqual(optionsArg.key, 'name');
+  assert.deepEqual(optionsArg.schema, { type: 'Text' });
+  assert.deepEqual(optionsArg.idPrefix, 'foo');
+  assert.deepEqual(optionsArg.model, form.model);
 });
 
-test('creates a new instance of the Field defined on the form - without model', function() {
+QUnit.test('creates a new instance of the Field defined on the form - without model', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -408,15 +533,15 @@ test('creates a new instance of the Field defined on the form - without model', 
 
   var field = form.createField('name', { type: 'Text' });
 
-  same(field instanceof MockField, true);
+  assert.deepEqual(field instanceof MockField, true);
 
   //Check correct options were passed
   var optionsArg = MockField.prototype.initialize.args[0][0];
 
-  same(optionsArg.value, 'John');
+  assert.deepEqual(optionsArg.value, 'John');
 });
 
-test('adds listener to all editor events', function() {
+QUnit.test('adds listener to all editor events', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -425,7 +550,7 @@ test('adds listener to all editor events', function() {
     data: { name: 'John' }
   });
 
-  this.sinon.stub(form, 'handleEditorEvent', function() {});
+  this.sinon.stub(form, 'handleEditorEvent', function(assert) {});
 
   var field = form.createField('name', { type: 'Text' });
 
@@ -435,10 +560,10 @@ test('adds listener to all editor events', function() {
   field.editor.trigger('change');
   field.editor.trigger('foo');
 
-  same(form.handleEditorEvent.callCount, 4);
+  assert.deepEqual(form.handleEditorEvent.callCount, 4);
 });
 
-test('editor events can be triggered with any number of arguments', function() {
+QUnit.test('editor events can be triggered with any number of arguments', function(assert) {
   var MockField = this.MockField;
 
   var form = new Form({
@@ -447,27 +572,27 @@ test('editor events can be triggered with any number of arguments', function() {
     data: { name: 'John' }
   });
 
-  this.sinon.stub(form, 'trigger', function() { console.log(arguments)});
+  this.sinon.stub(form, 'trigger', function(assert) { console.log(arguments)});
 
   var field = form.createField('name', { type: 'Text' });
 
   //Trigger events on editor to check they call the handleEditorEvent callback
   form.handleEditorEvent('focus', field.editor, 'arg1', 'arg2');
 
-  same(form.trigger.calledWith('undefined:focus', form, field.editor, ['arg1', 'arg2']), true);
+  assert.deepEqual(form.trigger.calledWith('undefined:focus', form, field.editor, ['arg1', 'arg2']), true);
 });
 
-module('Form#handleEditorEvent', {
-  setup: function() {
+QUnit.module('Form#handleEditorEvent', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('triggers editor events on the form, prefixed with the key name', function() {
+QUnit.test('triggers editor events on the form, prefixed with the key name', function(assert) {
   var form = new Form(),
       editor = new Form.Editor({ key: 'title' });
 
@@ -477,19 +602,21 @@ test('triggers editor events on the form, prefixed with the key name', function(
 
   form.handleEditorEvent('foo', editor);
 
-  same(spy.callCount, 1);
+  assert.deepEqual(spy.callCount, 1);
 
   var args = spy.args[0],
       eventArg = args[0],
       formArg = args[1],
       editorArg = args[2];
 
-  same(eventArg, 'title:foo');
-  same(formArg, form);
-  same(editorArg, editor);
+  assert.deepEqual(eventArg, 'title:foo');
+  assert.deepEqual(formArg, form);
+  assert.deepEqual(editorArg, editor);
 });
 
-test('triggers general form events', function() {
+QUnit.test('triggers general form events', function(assert) {
+  const done = assert.async();
+
   var form = new Form(),
       editor = new Form.Editor({ key: 'title' });
 
@@ -499,8 +626,8 @@ test('triggers general form events', function() {
   form.on('change', changeSpy);
   form.handleEditorEvent('change', editor);
 
-  same(changeSpy.callCount, 1);
-  same(changeSpy.args[0][0], form);
+  assert.deepEqual(changeSpy.callCount, 1);
+  assert.deepEqual(changeSpy.args[0][0], form);
 
   //Focus
   var focusSpy = this.sinon.spy()
@@ -508,8 +635,8 @@ test('triggers general form events', function() {
   form.on('focus', focusSpy);
   form.handleEditorEvent('focus', editor);
 
-  same(focusSpy.callCount, 1);
-  same(focusSpy.args[0][0], form);
+  assert.deepEqual(focusSpy.callCount, 1);
+  assert.deepEqual(focusSpy.args[0][0], form);
 
   //Blur
   var blurSpy = this.sinon.spy()
@@ -520,12 +647,14 @@ test('triggers general form events', function() {
   form.handleEditorEvent('blur', editor);
 
   setTimeout(function() {
-    same(blurSpy.callCount, 1);
-    same(blurSpy.args[0][0], form);
+    assert.deepEqual(blurSpy.callCount, 1);
+    assert.deepEqual(blurSpy.args[0][0], form);
+
+    done();
   }, 0);
 });
 
-test('triggers the submit event', function() {
+QUnit.test('triggers the submit event', function(assert) {
   var form = new Form();
 
   var spy = sinon.spy(),
@@ -538,38 +667,38 @@ test('triggers the submit event', function() {
 
   form.$el.submit();
 
-  same(spy.callCount, 1);
-  same(spy.args[0][0], submitEvent);
+  assert.deepEqual(spy.callCount, 1);
+  assert.deepEqual(spy.args[0][0], submitEvent);
 });
 
 
 
-module('Form#render', {
-  setup: function() {
+QUnit.module('Form#render', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
-    this.sinon.stub(Form.editors.Text.prototype, 'render', function() {
+    this.sinon.stub(Form.editors.Text.prototype, 'render', function(assert) {
       this.setElement($('<input class="'+this.key+'" />'));
       return this;
     });
 
-    this.sinon.stub(Form.Field.prototype, 'render', function() {
+    this.sinon.stub(Form.Field.prototype, 'render', function(assert) {
       this.setElement($('<field class="'+this.key+'" />'));
       return this;
     });
 
-    this.sinon.stub(Form.Fieldset.prototype, 'render', function() {
+    this.sinon.stub(Form.Fieldset.prototype, 'render', function(assert) {
       this.setElement($('<fieldset></fieldset>'));
       return this;
     });
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('returns self', function() {
+QUnit.test('returns self', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div data-fieldsets></div>')
@@ -577,68 +706,78 @@ test('returns self', function() {
 
   var returnedValue = form.render();
 
-  same(returnedValue, form);
+  assert.deepEqual(returnedValue, form);
 });
 
-test('with data-editors="*" placeholder, on inner element', function() {
+QUnit.test('with data-editors="*" placeholder, on inner element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div><b data-editors="*"></b></div>')
   }).render();
 
-  same(form.$el.html(), '<b data-editors="*"><input class="name"><input class="password"></b>');
+  assert.deepEqual(form.$el.html(), '<b data-editors="*"><input class="name"><input class="password"></b>');
 });
 
-test('with data-editors="x,y" placeholder, on outermost element', function() {
+QUnit.test('with data-editors="x,y" placeholder, on outermost element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<b data-editors="name,password"></b>')
   }).render();
 
-  same(form.$el.html(), '<input class="name"><input class="password">');
+  assert.deepEqual(form.$el.html(), '<input class="name"><input class="password">');
 });
 
-test('with data-fields="*" placeholder, on inner element', function() {
+QUnit.test('with data-fields="*" placeholder, on inner element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div><b data-fields="*"></b></div>')
   }).render();
 
-  same(form.$el.html(), '<b data-fields="*"><field class="name"></field><field class="password"></field></b>');
+  assert.deepEqual(form.$el.html(), '<b data-fields="*"><field class="name"></field><field class="password"></field></b>');
 });
 
-test('with data-fields="x,y" placeholder, on outermost element', function() {
+QUnit.test('with data-fields="x,y" placeholder, on outermost element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<b data-fields="name,password"></b>')
   }).render();
 
-  same(form.$el.html(), '<field class="name"></field><field class="password"></field>');
+  assert.deepEqual(form.$el.html(), '<field class="name"></field><field class="password"></field>');
 });
 
-test('with data-fieldsets placeholder, on inner element', function() {
+QUnit.test('with data-fieldsets placeholder, on inner element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<div><b data-fieldsets></b></div>')
   }).render();
 
-  same(form.$el.html(), '<b data-fieldsets=""><fieldset></fieldset></b>');
+  assert.deepEqual(form.$el.html(), '<b data-fieldsets=""><fieldset></fieldset></b>');
 });
 
-test('with data-fieldsets placeholder, on outermost element', function() {
+QUnit.test('with data-fieldsets placeholder, on outermost element', function(assert) {
   var form = new Form({
     schema: { name: 'Text', password: 'Password' },
     template: _.template('<b data-fieldsets></b>')
   }).render();
 
-  same(form.$el.html(), '<fieldset></fieldset>');
+  assert.deepEqual(form.$el.html(), '<fieldset></fieldset>');
+});
+
+QUnit.test('with attributes on form element', function(assert) {
+  var form = new Form({
+    attributes: {
+      autocomplete: "off"
+    },
+    schema: { name: 'Text', password: 'Password' }
+  }).render();
+  assert.deepEqual(form.$el.attr("autocomplete"), "off");
 });
 
 
 
-module('Form#validate');
+QUnit.module('Form#validate');
 
-test('validates the form and returns an errors object', function () {
+QUnit.test('validates the form and returns an errors object', function (assert) {
   var form = new Form({
     schema: {
       title: {validators: ['required']}
@@ -647,14 +786,14 @@ test('validates the form and returns an errors object', function () {
 
   var err = form.validate();
 
-  same(err.title.type, 'required');
-  same(err.title.message, 'Required');
+  assert.deepEqual(err.title.type, 'required');
+  assert.deepEqual(err.title.message, 'Required');
 
   form.setValue({title: 'A valid title'});
-  same(form.validate(), null);
+  assert.deepEqual(form.validate(), null);
 });
 
-test('returns model validation errors by default', function() {
+QUnit.test('returns model validation errors by default', function(assert) {
   var model = new Backbone.Model;
 
   model.validate = function() {
@@ -670,30 +809,30 @@ test('returns model validation errors by default', function() {
 
   var err = form.validate();
 
-  same(err._others, ['FOO']);
+  assert.deepEqual(err._others, ['FOO']);
 });
 
-test('skips model validation if { skipModelValidate: true } is passed', function() {
+QUnit.test('skips model validation if { skipModelValidate: true } is passed', function(assert) {
   var model = new Backbone.Model();
-  
+
   model.validate = function() {
     return 'ERROR';
   };
-  
+
   var form = new Form({
     model: model
   });
-  
+
   var err = form.validate({ skipModelValidate: true });
-  
-  same(err, null);
+
+  assert.deepEqual(err, null);
 });
 
 
 
-module('Form#commit');
+QUnit.module('Form#commit');
 
-test('returns validation errors', function() {
+QUnit.test('returns validation errors', function(assert) {
   var form = new Form({
     model: new Backbone.Model()
   });
@@ -705,10 +844,10 @@ test('returns validation errors', function() {
 
   var err = form.commit();
 
-  same(err.foo, 'bar');
+  assert.deepEqual(err.foo, 'bar');
 });
 
-test('does not return  model validation errors by default', function() {
+QUnit.test('does not return  model validation errors by default', function(assert) {
   var model = new Backbone.Model();
 
   model.validate = function() {
@@ -720,27 +859,27 @@ test('does not return  model validation errors by default', function() {
   });
 
   var err = form.commit();
-  
-  same(err, undefined);
+
+  assert.deepEqual(err, undefined);
 });
 
-test('returns model validation errors when { validate: true } is passed', function() {
+QUnit.test('returns model validation errors when { validate: true } is passed', function(assert) {
   var model = new Backbone.Model();
-  
+
   model.validate = function() {
     return 'ERROR';
   };
-  
+
   var form = new Form({
     model: model
   });
-  
+
   var err = form.commit({ validate: true });
-  
-  same(err._others, ['ERROR']);
+
+  assert.deepEqual(err._others, ['ERROR']);
 });
 
-test('updates the model with form values', function() {
+QUnit.test('updates the model with form values', function(assert) {
   var model = new Backbone.Model();
 
   var form = new Form({
@@ -753,10 +892,10 @@ test('updates the model with form values', function() {
   form.setValue('title', 'New title');
   form.commit();
 
-  same(model.get('title'), 'New title');
+  assert.deepEqual(model.get('title'), 'New title');
 });
 
-test('triggers model change once', function() {
+QUnit.test('triggers model change once', function(assert) {
   var model = new Backbone.Model();
 
   var form = new Form({
@@ -766,7 +905,7 @@ test('triggers model change once', function() {
 
   //Count change events
   var timesCalled = 0;
-  model.on('change', function() {
+  model.on('change', function(assert) {
     timesCalled ++;
   });
 
@@ -774,10 +913,10 @@ test('triggers model change once', function() {
   form.setValue('author', 'New author');
   form.commit();
 
-  same(timesCalled, 1);
+  assert.deepEqual(timesCalled, 1);
 });
 
-test('can silence change event with options', function() {
+QUnit.test('can silence change event with options', function(assert) {
   var model = new Backbone.Model();
 
   var form = new Form({
@@ -787,7 +926,7 @@ test('can silence change event with options', function() {
 
   //Count change events
   var timesCalled = 0;
-  model.on('change', function() {
+  model.on('change', function(assert) {
     timesCalled ++;
   });
 
@@ -795,14 +934,14 @@ test('can silence change event with options', function() {
 
   form.commit({ silent: true });
 
-  same(timesCalled, 0);
+  assert.deepEqual(timesCalled, 0);
 });
 
 
 
-module('Form#getValue');
+QUnit.module('Form#getValue');
 
-test('returns form value as an object', function() {
+QUnit.test('returns form value as an object', function(assert) {
   var data = {
     title: 'Nooope',
     author: 'Lana Kang'
@@ -818,11 +957,11 @@ test('returns form value as an object', function() {
 
   var result = form.getValue();
 
-  same(result.title, 'Nooope');
-  same(result.author, 'Lana Kang');
+  assert.deepEqual(result.title, 'Nooope');
+  assert.deepEqual(result.author, 'Lana Kang');
 });
 
-test('returns specific field value', function() {
+QUnit.test('returns specific field value', function(assert) {
   var data = {
     title: 'Danger Zone!',
     author: 'Sterling Archer'
@@ -836,34 +975,34 @@ test('returns specific field value', function() {
     }
   }).render();
 
-  same(form.getValue('title'), 'Danger Zone!');
+  assert.deepEqual(form.getValue('title'), 'Danger Zone!');
 });
 
 
 
-module('Form#getEditor');
+QUnit.module('Form#getEditor');
 
-test('returns the editor for a given key', function() {
+QUnit.test('returns the editor for a given key', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' }
   });
 
-  same(form.getEditor('author'), form.fields.author.editor);
+  assert.deepEqual(form.getEditor('author'), form.fields.author.editor);
 });
 
 
 
-module('Form#focus', {
-  setup: function() {
+QUnit.module('Form#focus', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Sets focus on the first editor in the form', function() {
+QUnit.test('Sets focus on the first editor in the form', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' },
     fieldsets: [
@@ -875,22 +1014,22 @@ test('Sets focus on the first editor in the form', function() {
 
   form.focus();
 
-  same(form.fields.title.editor.focus.callCount, 1);
+  assert.deepEqual(form.fields.title.editor.focus.callCount, 1);
 });
 
 
 
-module('Form#blur', {
-  setup: function() {
+QUnit.module('Form#blur', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('Removes focus from the currently focused editor', function() {
+QUnit.test('Removes focus from the currently focused editor', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' }
   });
@@ -903,49 +1042,49 @@ test('Removes focus from the currently focused editor', function() {
 
   form.blur();
 
-  same(form.fields.author.editor.blur.callCount, 1);
+  assert.deepEqual(form.fields.author.editor.blur.callCount, 1);
 });
 
 
 
-module('Form#trigger');
+QUnit.module('Form#trigger');
 
-test('Sets hasFocus to true on focus event', function() {
+QUnit.test('Sets hasFocus to true on focus event', function(assert) {
   var form = new Form();
 
   form.hasFocus = false;
 
   form.trigger('focus');
 
-  same(form.hasFocus, true);
+  assert.deepEqual(form.hasFocus, true);
 });
 
-test('Sets hasFocus to false on blur event', function() {
+QUnit.test('Sets hasFocus to false on blur event', function(assert) {
   var form = new Form();
 
   form.hasFocus = true;
 
   form.trigger('blur');
 
-  same(form.hasFocus, false);
+  assert.deepEqual(form.hasFocus, false);
 });
 
 
 
-module('Form#remove', {
-  setup: function() {
+QUnit.module('Form#remove', {
+  beforeEach: function() {
     this.sinon = sinon.sandbox.create();
 
     this.sinon.spy(Form.Fieldset.prototype, 'remove');
     this.sinon.spy(Form.Field.prototype, 'remove');
   },
 
-  teardown: function() {
+  afterEach: function() {
     this.sinon.restore();
   }
 });
 
-test('removes fieldsets, fields and self', function() {
+QUnit.test('removes fieldsets, fields and self', function(assert) {
   var form = new Form({
     schema: { title: 'Text', author: 'Text' },
     fieldsets: [
@@ -955,11 +1094,11 @@ test('removes fieldsets, fields and self', function() {
 
   form.remove();
 
-  same(Form.Fieldset.prototype.remove.callCount, 1);
+  assert.deepEqual(Form.Fieldset.prototype.remove.callCount, 1);
 
   //Field.remove is called twice each because is called directly and through fieldset
   //This is done in case fieldsets are not used, e.g. fields are included directly through template
-  same(Form.Field.prototype.remove.callCount, 4);
+  assert.deepEqual(Form.Field.prototype.remove.callCount, 4);
 });
 
 })(Backbone.Form);
