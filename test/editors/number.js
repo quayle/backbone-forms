@@ -65,7 +65,7 @@
     same(editor.$el.attr('min'), '150');
   });
 
-  QUnit.test("TODO: Restricts non-numeric characters", function() {
+  QUnit.test.todo("Restricts non-numeric characters", function() {
     assert.ok(1);
   });
 

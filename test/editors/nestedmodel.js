@@ -92,19 +92,19 @@
     assert.deepEqual(editor.getValue(), { id: 28, name: 'Pam' });
   });
 
-  QUnit.test("TODO: idPrefix is added to child form elements", function() {
+  QUnit.test.todo("idPrefix is added to child form elements", function() {
     assert.ok(1);
   });
 
-  QUnit.test("TODO: Validation on nested model", function() {
+  QUnit.test.todo("Validation on nested model", function() {
     assert.ok(1);
   });
 
-  QUnit.test('TODO: uses the nestededitor template, unless overridden in editor schema', function(assert) {
+  QUnit.test.todo('uses the nestededitor template, unless overridden in editor schema', function(assert) {
     assert.ok(1);
   });
 
-  QUnit.test("TODO: remove() - Removes embedded form", function() {
+  QUnit.test.todo("remove() - Removes embedded form", function() {
     assert.ok(1);
   });
 
