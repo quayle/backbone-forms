@@ -63,7 +63,7 @@
     assert.deepEqual(editor.$el.attr('min'), '150');
   });
 
-  QUnit.test("TODO: Restricts non-numeric characters", function(assert) {
+  QUnit.test.todo("Restricts non-numeric characters", function(assert) {
     assert.ok(1);
   });
 

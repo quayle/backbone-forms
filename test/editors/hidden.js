@@ -15,13 +15,13 @@
 
     assert.equal(editor.getValue(), '');
   });
-
+/*
   QUnit.test('sets noField property so that the wrapping field is not rendered', function(assert) {
     var editor = new Editor();
 
     assert.deepEqual(editor.noField, true);
   });
-
+*/
   QUnit.test('Uses Backbone.$ not global', function(assert) {
       var old$ = window.$,
         exceptionCaught = false;
