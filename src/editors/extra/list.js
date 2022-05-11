@@ -264,10 +264,13 @@
    * A single item in the list
    *
    * @param {editors.List} options.list The List editor instance this item belongs to
+   * @param {Object} options.schema     Field schema
+   * @param {Mixed} options.value       Value
    * @param {Function} options.Editor   Editor constructor function
    * @param {String} options.key        Model key
-   * @param {Mixed} options.value       Value
-   * @param {Object} options.schema     Field schema
+   * @param {Function} options.template
+   * @param {String} options.errorClassName
+   * @param {Object} options.form
    */
   Form.editors.List.Item = Form.editors.Base.extend({
 

@@ -16,7 +16,7 @@ Form.Field = Backbone.View.extend({
    * @param {Object} [options.value]
    * @param {String} [options.idPrefix]
    * @param {Function} [options.template]
-   * @param {Function} [options.errorClassName]
+   * @param {String} [options.errorClassName]
    */
   initialize: function(options) {
     options = options || {};
