@@ -1379,7 +1379,7 @@ QUnit.test('initialize() - sets the nestedSchema', function(assert) {
 
 
 
-QUnit.module('[List.]NestedModel', {
+QUnit.module('List.NestedModel', {
     beforeEach: function() {
         this.sinon = sinon.sandbox.create();
 
@@ -1400,7 +1400,7 @@ QUnit.module('[List.]NestedModel', {
             }
         });
 
-        this.editor = new editors.NestedModel({
+        this.editor = new editors.List.NestedModel({
             form: new Form(),
             schema: {
                 model: this.Model
@@ -1421,7 +1421,7 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is object', functi
         }
     });
 
-    var editor = new editors.NestedModel({
+    var editor = new editors.List.NestedModel({
         form: new Form(),
         schema: {
             model: Model
@@ -1441,7 +1441,7 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is function', func
         }
     });
 
-    var editor = new editors.NestedModel({
+    var editor = new editors.List.NestedModel({
         form: new Form(),
         schema: {
             model: Model
