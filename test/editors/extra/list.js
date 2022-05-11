@@ -1441,13 +1441,12 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is function', func
     assert.deepEqual(_.keys(editor.nestedSchema), ['id', 'name']);
 });
 
-/*
 QUnit.test('Check validation of list nested models', function(assert) {
 
     //Save proto for restoring after the test otherwise next fails alternately.
-    var tmpNestedModel = Backbone.Form.editors.NestedModel;
+    var tmpNestedModel = Backbone.Form.editors.List.NestedModel;
 
-     Backbone.Form.editors.NestedModel = Backbone.Form.editors.NestedModel;
+     Backbone.Form.editors.List.NestedModel = Backbone.Form.editors.NestedModel;
      var NestedModel = Backbone.Model.extend({
        schema: {
          name: { validators: ['required']},
@@ -1460,11 +1459,12 @@ QUnit.test('Check validation of list nested models', function(assert) {
        schema: schema,
      }).render();
 
-     Backbone.Form.editors.NestedModel = tmpNestedModel;
+     Backbone.Form.editors.List.NestedModel = tmpNestedModel;
 
      assert.deepEqual(_.keys(form.validate().nestedModelList.errors[0]), ['name']);
 });
 
+/*
 QUnit.test('getStringValue() - uses model.toString() if available', function(assert) {
     this.Model.prototype.toString = function() {
         return 'foo!';
