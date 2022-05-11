@@ -88,6 +88,7 @@ $('body').append(form.el);
 
 
 <a name="top"/>
+
 ## Guide
 
 ### Table of Contents:
@@ -116,6 +117,7 @@ $('body').append(form.el);
 
 
 <a name="installation"/>
+
 ## Installation
 
 Dependencies:
@@ -144,6 +146,7 @@ Note there is also a distribution file for RequireJS / AMD.
 
 
 <a name="usage"/>
+
 ## Usage
 
 Forms are generated from a `schema`, which can be defined on the form itself or on a model.
@@ -223,6 +226,7 @@ If a form has a model attached to it, the initial values are taken from the mode
 
 
 <a name="form"/>
+
 ## Backbone.Form
 
 ### Options
@@ -296,6 +300,7 @@ If a form has a model attached to it, the initial values are taken from the mode
 
 
 <a name="schema-definition"/>
+
 ## Schema definition
 
 The schema defined on your model can be the schema object itself, or a function that returns a schema object. This can be useful if you're referencing variables that haven't been initialized yet.
@@ -382,6 +387,7 @@ Besides these three, editors can implement custom events, which are described be
 [Back to top](#top)
 
 <a name="editor-text"/>
+
 ## Text
 
 Creates a normal text input.
@@ -392,6 +398,7 @@ Creates a normal text input.
 
 
 <a name="editor-select"/>
+
 ## Select
 
 Creates and populates a `<select>` element.
@@ -422,7 +429,6 @@ Creates and populates a `<select>` element.
   Update the options in the select. Accepts any of the types that can be set in the schema `options`
 
 
-
 #### Examples
 
     var schema = {
@@ -448,18 +454,21 @@ Creates and populates a `<select>` element.
 
 
 <a name="editor-radio"/>
+
 ## Radio
 
 Creates and populates a list of radio inputs. Behaves the same way and has the same options as a `Select`.
 
 
 <a name="editor-checkboxes"/>
+
 ## Checkboxes
 
 Creates and populates a list of checkbox inputs. Behaves the same way and has the same options as a `Select`. To set defaults for this editor, use an array of values.
 
 
 <a name="editor-object"/>
+
 ## Object
 
 The Object editor creates an embedded child form representing a Javascript object.
@@ -492,6 +501,7 @@ The Object editor creates an embedded child form representing a Javascript objec
 
 
 <a name="editor-nestedmodel"/>
+
 ## NestedModel
 
 Used to embed models within models.  Similar to the Object editor, but adds validation of the child form (if it is defined on the model), and keeps your schema cleaner.
@@ -521,6 +531,7 @@ Used to embed models within models.  Similar to the Object editor, but adds vali
 
 
 <a name="editor-date"/>
+
 ## Date
 
 Creates `<select>`s for date, month and year.
@@ -554,6 +565,7 @@ Creates a Date editor and adds `<select>`s for time (hours and minutes).
 
 
 <a name="editor-list"/>
+
 ## List
 
 Creates a list of items that can be added, removed and edited. Used to manage arrays of data.
@@ -625,6 +637,7 @@ This is a special editor which is in **a separate file and must be included**:
 
 
 <a name="validation"/>
+
 ## Validation
 
 There are 2 levels of validation: schema validators and the regular
@@ -748,6 +761,7 @@ var errors = form.commit();
 
 
 <a name="customising-templates"/>
+
 ## Customising templates
 
 Backbone-Forms comes with a few options for rendering HTML. To use another template pack, such as for [Bootstrap](http://twitter.github.com/bootstrap/), just include the .js file from the `templates` folder, after including `backbone-forms.js`.
@@ -804,9 +818,11 @@ var form = new Backbone.Form({
 
 
 <a name="more"/>
+
 ## More
 
 <a name="editors-without-forms"/>
+
 ### Editors without forms
 
 You can add editors by themselves, without being part of a form. For example:
@@ -823,6 +839,7 @@ select.commit();
 ```
 
 <a name="nested-fields"/>
+
 ### Using nested fields
 
 If you are using a schema with nested attributes (using the `Object` type), you may want to include only some of the nested fields in a form. This can be accomplished by using 'path' syntax as in the example below.
@@ -866,6 +883,7 @@ var form = new Backbone.Form({
 ```
 
 <a name="custom-editors"/>
+
 ### Custom editors
 
 Writing a custom editor is simple. They must extend from Backbone.Form.editors.Base.
@@ -946,15 +964,17 @@ var CustomEditor = Backbone.Form.editors.Base.extend({
 
 
 <a name="help"/>
+
 ## Help & discussion
 
 - [Google Groups](http://groups.google.com/group/backbone-forms)
 
 
 <a name="changelog"/>
+
 ## Changelog
 
-###master
+### master
 - Add `submitButton` to form constructor. Adds a submit button with given text.
 - No longer require jquery from within the CommonJS module. NOTE: You must now set Backbone.$ yourself if using CommonJS e.g. browserify
 - Fix CommonJS backend issues (ndrsn)
