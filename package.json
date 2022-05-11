@@ -1,5 +1,5 @@
 {
-  "name": "backbone-forms",
+  "name": "@mindless.mind/backbone-forms",
   "description": "A flexible, customisable form framework for Backbone.JS applications.",
   "author": {
     "name": "Charles Davison"
