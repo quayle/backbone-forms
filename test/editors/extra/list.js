@@ -1411,7 +1411,7 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is function', func
         schema: function() {
             return {
                 id: { type: 'Number' },
-                name: { type: 'Object' }
+                name: { }
             }
         }
     });
@@ -1449,16 +1449,27 @@ QUnit.test('Check validation of list nested models', function(assert) {
      assert.deepEqual(_.keys(form.validate().nestedModelList.errors[0]), ['name']);
 });
 
-/*
 QUnit.test('getStringValue() - uses model.toString() if available', function(assert) {
-    this.Model.prototype.toString = function() {
+    var Model = Backbone.Model.extend({
+        schema: {
+            id: { type: 'Number' },
+            name: { }
+        }
+    });
+    Model.prototype.toString = function() {
         return 'foo!';
     }
 
-    this.editor.setValue({ id: 1, name: 'foo' });
+    var form = new Form();
+    var editor = new editors.List.NestedModel({
+        form: form,
+        schema: {
+            model: Model
+        }
+    });
+    editor.setValue({ id: 1, name: 'foo' });
 
-    assert.equal(this.editor.getStringValue(), 'foo!');
+    assert.equal(editor.getStringValue(), 'foo!');
 });
-*/
 
 })(Backbone.Form, Backbone.Form.Field, Backbone.Form.editors);
