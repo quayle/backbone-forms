@@ -10,7 +10,7 @@ QUnit.module('Form#initialize', {
   }
 });
 
-QUnit.test.todo('accepts an errorClassName in schema', function(assert) {
+QUnit.test('accepts an errorClassName in schema', function(assert) {
   var form = new Form({
     schema: {
       name: {type: 'Text', errorClassName: 'custom-error'}
