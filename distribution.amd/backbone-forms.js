@@ -26,7 +26,7 @@ var Form = Backbone.View.extend({
 
   /**
    * Constructor
-   * 
+   *
    * @param {Object} [options.schema]
    * @param {Backbone.Model} [options.model]
    * @param {Object} [options.data]
@@ -129,7 +129,7 @@ var Form = Backbone.View.extend({
     } else if (this.data) {
       options.value = this.data[key];
     } else {
-      options.value = null;
+      options.value = undefined;
     }
 
     var field = new this.Field(options);
@@ -248,7 +248,7 @@ var Form = Backbone.View.extend({
 
     //Set the main element
     this.setElement($form);
-    
+
     //Set class
     $form.addClass(this.className);
 
@@ -341,7 +341,7 @@ var Form = Backbone.View.extend({
     }, options);
 
     this.model.set(this.getValue(), setOptions);
-    
+
     if (modelError) return modelError;
   },
 
@@ -476,8 +476,8 @@ var Form = Backbone.View.extend({
   ', null, this.templateSettings),
 
   templateSettings: {
-    evaluate: /<%([\s\S]+?)%>/g, 
-    interpolate: /<%=([\s\S]+?)%>/g, 
+    evaluate: /<%([\s\S]+?)%>/g,
+    interpolate: /<%=([\s\S]+?)%>/g,
     escape: /<%-([\s\S]+?)%>/g
   },
 
@@ -485,7 +485,7 @@ var Form = Backbone.View.extend({
 
 });
 
-  
+
 //==================================================================================================
 //VALIDATORS
 //==================================================================================================
@@ -502,42 +502,42 @@ Form.validators = (function() {
     url: 'Invalid URL',
     match: _.template('Must match field "<%= field %>"', null, Form.templateSettings)
   };
-  
+
   validators.required = function(options) {
     options = _.extend({
       type: 'required',
       message: this.errMessages.required
     }, options);
-     
+
     return function required(value) {
       options.value = value;
-      
+
       var err = {
         type: options.type,
         message: _.isFunction(options.message) ? options.message(options) : options.message
       };
       
-      if (value === null || value === undefined || value === false || value === '') return err;
+      if (value === null || value === undefined || value === false || value === '' || Backbone.$.trim(value) === '' ) return err;
     };
   };
-  
+
   validators.regexp = function(options) {
     if (!options.regexp) throw new Error('Missing required "regexp" option for "regexp" validator');
-  
+
     options = _.extend({
       type: 'regexp',
       match: true,
       message: this.errMessages.regexp
     }, options);
-    
+
     return function regexp(value) {
       options.value = value;
-      
+
       var err = {
         type: options.type,
         message: _.isFunction(options.message) ? options.message(options) : options.message
       };
-      
+
       //Don't check empty values (add a 'required' validator for this)
       if (value === null || value === undefined || value === '') return;
 
@@ -554,49 +554,49 @@ Form.validators = (function() {
       message: this.errMessages.number,
       regexp: /^[0-9]*\.?[0-9]*?$/
     }, options);
-    
+
     return validators.regexp(options);
   };
-  
+
   validators.email = function(options) {
     options = _.extend({
       type: 'email',
       message: this.errMessages.email,
       regexp: /^[\w\-]{1,}([\w\-\+.]{1,1}[\w\-]{1,}){0,}[@][\w\-]{1,}([.]([\w\-]{1,})){1,3}$/
     }, options);
-    
+
     return validators.regexp(options);
   };
-  
+
   validators.url = function(options) {
     options = _.extend({
       type: 'url',
       message: this.errMessages.url,
       regexp: /^(http|https):\/\/(([A-Z0-9][A-Z0-9_\-]*)(\.[A-Z0-9][A-Z0-9_\-]*)+)(:(\d+))?\/?/i
     }, options);
-    
+
     return validators.regexp(options);
   };
-  
+
   validators.match = function(options) {
     if (!options.field) throw new Error('Missing required "field" options for "match" validator');
-    
+
     options = _.extend({
       type: 'match',
       message: this.errMessages.match
     }, options);
-    
+
     return function match(value, attrs) {
       options.value = value;
-      
+
       var err = {
         type: options.type,
         message: _.isFunction(options.message) ? options.message(options) : options.message
       };
-      
+
       //Don't check empty values (add a 'required' validator for this)
       if (value === null || value === undefined || value === '') return;
-      
+
       if (value !== attrs[options.field]) return err;
     };
   };
@@ -740,7 +740,7 @@ Form.Field = Backbone.View.extend({
 
   /**
    * Constructor
-   * 
+   *
    * @param {Object} options.key
    * @param {Object} options.form
    * @param {Object} [options.schema]
@@ -762,7 +762,7 @@ Form.Field = Backbone.View.extend({
 
     //Override defaults
     this.template = options.template || schema.template || this.template || this.constructor.template;
-    this.errorClassName = options.errorClassName || this.errorClassName || this.constructor.errorClassName;
+    this.errorClassName = options.errorClassName || schema.errorClassName || this.errorClassName || this.constructor.errorClassName;
 
     //Create editor
     this.editor = this.createEditor();
@@ -1021,7 +1021,7 @@ Form.Field = Backbone.View.extend({
 //NESTEDFIELD
 //==================================================================================================
 
-Form.NestedField = Form.Field.extend({
+Form.NestedField = Form.Field.extend({}, {
 
   template: _.template('\
     <div>\
@@ -1310,7 +1310,9 @@ Form.editors.Text = Form.Editor.extend({
    * @param {String}
    */
   setValue: function(value) {
+    this.value = value;
     this.$el.val(value);
+    this.previousValue = this.$el.val();
   },
 
   focus: function() {
@@ -1371,7 +1373,8 @@ Form.editors.Number = Form.editors.Text.extend({
 
   events: _.extend({}, Form.editors.Text.prototype.events, {
     'keypress': 'onKeyPress',
-    'change': 'onKeyPress'
+    'change': 'onKeyPress',
+    'input':    'determineChange'
   }),
 
   initialize: function(options) {
@@ -1437,7 +1440,7 @@ Form.editors.Number = Form.editors.Text.extend({
     })();
 
     if (_.isNaN(value)) value = null;
-
+    this.value = value;
     Form.editors.Text.prototype.setValue.call(this, value);
   }
 
@@ -1514,6 +1517,7 @@ Form.editors.Checkbox = Form.editors.Base.extend({
     }else{
       this.$el.prop('checked', false);
     }
+    this.value = !!value;
   },
 
   focus: function() {
@@ -1682,6 +1686,7 @@ Form.editors.Select = Form.editors.Base.extend({
   },
 
   setValue: function(value) {
+    this.value = value;
     this.$el.val(value);
   },
 
@@ -1812,6 +1817,7 @@ Form.editors.Radio = Form.editors.Select.extend({
   },
 
   setValue: function(value) {
+    this.value = value;
     this.$('input[type=radio]').val([value]);
   },
 
@@ -1923,6 +1929,7 @@ Form.editors.Checkboxes = Form.editors.Select.extend({
 
   setValue: function(values) {
     if (!_.isArray(values)) values = [values];
+    this.value = values;
     this.$('input[type=checkbox]').val(values);
   },
 
@@ -2059,7 +2066,11 @@ Form.editors.Object = Form.editors.Base.extend({
   },
 
   validate: function() {
-    return this.nestedForm.validate();
+    var errors = _.extend({}, 
+      Form.editors.Base.prototype.validate.call(this),
+      this.nestedForm.validate()
+    );
+    return errors; 
   },
 
   _observeFormEvents: function() {
@@ -2279,6 +2290,7 @@ Form.editors.Date = Form.editors.Base.extend({
    * @param {Date} date
    */
   setValue: function(date) {
+    this.value = date;
     this.$date.val(date.getDate());
     this.$month.val(date.getMonth());
     this.$year.val(date.getFullYear());
@@ -2446,7 +2458,7 @@ Form.editors.DateTime = Form.editors.Base.extend({
    */
   setValue: function(date) {
     if (!_.isDate(date)) date = new Date(date);
-
+    this.value = date;
     this.dateEditor.setValue(date);
 
     this.$hour.val(date.getHours());
