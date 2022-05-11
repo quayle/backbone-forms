@@ -252,6 +252,11 @@ var Form = Backbone.View.extend({
     //Set class
     $form.addClass(this.className);
 
+    //Set attributes
+    if (this.attributes) {
+      $form.attr(this.attributes)
+    }
+
     return this;
   },
 
@@ -749,7 +754,7 @@ Form.Field = Backbone.View.extend({
    * @param {Object} [options.value]
    * @param {String} [options.idPrefix]
    * @param {Function} [options.template]
-   * @param {Function} [options.errorClassName]
+   * @param {String} [options.errorClassName]
    */
   initialize: function(options) {
     options = options || {};
@@ -931,7 +936,7 @@ Form.Field = Backbone.View.extend({
     this.$el.addClass(this.errorClassName);
 
     //Set error message
-    this.$('[data-error]').html(msg);
+    this.$('[data-error]').last().html(msg);
   },
 
   /**

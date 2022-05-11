@@ -63,7 +63,7 @@
       }
       //Add existing items
       if (value.length) {
-        _.each(value, function addItem(itemValue) {
+        _.each(value, function(itemValue) {
           self.addItem(itemValue);
         });
       }
@@ -228,7 +228,6 @@
      * @return {Object|Null}
      */
     validate: function() {
-      if (!this.validators) return null;
 
       //Collect errors
       var errors = _.map(this.items, function(item) {
@@ -265,10 +264,13 @@
    * A single item in the list
    *
    * @param {editors.List} options.list The List editor instance this item belongs to
+   * @param {Object} options.schema     Field schema
+   * @param {Mixed} options.value       Value
    * @param {Function} options.Editor   Editor constructor function
    * @param {String} options.key        Model key
-   * @param {Mixed} options.value       Value
-   * @param {Object} options.schema     Field schema
+   * @param {Function} options.template
+   * @param {String} options.errorClassName
+   * @param {Object} options.form
    */
   Form.editors.List.Item = Form.editors.Base.extend({
 
@@ -347,6 +349,10 @@
           formValues = this.list.form ? this.list.form.getValue() : {},
           validators = this.schema.validators,
           getValidator = this.getValidator;
+
+      if (this.editor.nestedForm && this.editor.nestedForm.validate) {
+        return this.editor.nestedForm.validate();
+      }
 
       if (!validators) return null;
 
