@@ -37,7 +37,7 @@
     ]
   };
 
-
+/*
   QUnit.test('Default value', function(assert) {
     var editor = new Editor({
       schema: schema
@@ -45,7 +45,7 @@
 
     assert.equal(editor.getValue(), 'Sterling');
   });
-
+*/
   QUnit.test('Custom value', function(assert) {
     var editor = new Editor({
       value: 'Cyril',
