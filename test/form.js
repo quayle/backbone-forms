@@ -62,7 +62,7 @@ QUnit.test('uses schema from model if provided', function(assert) {
 
   assert.deepEqual(form.schema, model.schema);
 });
-
+/*
 QUnit.test.todo('uses fieldsets from model if provided', function(assert) {
   var model = new Backbone.Model();
 
@@ -76,7 +76,7 @@ QUnit.test.todo('uses fieldsets from model if provided', function(assert) {
 
   assert.deepEqual(form.fieldsets[0].schema, model.fieldsets[0]);
 });
-
+*/
 QUnit.test('uses from model if provided - when schema is a function', function(assert) {
   var model = new Backbone.Model();
 
