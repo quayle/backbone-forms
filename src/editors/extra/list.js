@@ -63,7 +63,7 @@
       }
       //Add existing items
       if (value.length) {
-        _.each(value, function addItem(itemValue) {
+        _.each(value, function(itemValue) {
           self.addItem(itemValue);
         });
       }
