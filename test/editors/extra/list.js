@@ -1344,17 +1344,6 @@ QUnit.module('List.Object', {
         });
 
         this.sinon.stub(editors.List.Modal, 'ModalAdapter', MockModalAdapter);
-
-        //Create editor to test
-        this.editor = new editors.List.Object({
-            form: new Form(),
-            schema: {
-                subSchema: {
-                    id: { type: 'Number' },
-                    name: { }
-                }
-            }
-        });
     },
 
     afterEach: function() {
@@ -1363,7 +1352,17 @@ QUnit.module('List.Object', {
 });
 
 QUnit.test('initialize() - sets the nestedSchema', function(assert) {
-    assert.deepEqual(_.keys(this.editor.nestedSchema), ['id', 'name']);
+    var form = new Form();
+    var editor = new editors.List.Object({
+        form: form,
+        schema: {
+            subSchema: {
+                id: { type: 'Number' },
+                name: { }
+            }
+        }
+    });
+    assert.deepEqual(_.keys(editor.nestedSchema), ['id', 'name']);
 });
 
 
@@ -1381,21 +1380,6 @@ QUnit.module('List.NestedModel', {
         });
 
         this.sinon.stub(editors.List.Modal, 'ModalAdapter', MockModalAdapter);
-
-        //Create editor to test
-        this.Model = Backbone.Model.extend({
-            schema: {
-                id: { type: 'Number' },
-                name: { }
-            }
-        });
-
-        this.editor = new editors.List.NestedModel({
-            form: new Form(),
-            schema: {
-                model: this.Model
-            }
-        });
     },
 
     afterEach: function() {
@@ -1411,8 +1395,9 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is object', functi
         }
     });
 
+    var form = new Form();
     var editor = new editors.List.NestedModel({
-        form: new Form(),
+        form: form,
         schema: {
             model: Model
         }
@@ -1426,13 +1411,14 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is function', func
         schema: function() {
             return {
                 id: { type: 'Number' },
-                name: { }
+                name: { type: 'Object' }
             }
         }
     });
 
+    var form = new Form();
     var editor = new editors.List.NestedModel({
-        form: new Form(),
+        form: form,
         schema: {
             model: Model
         }
@@ -1442,7 +1428,6 @@ QUnit.test('initialize() - sets the nestedSchema, when schema is function', func
 });
 
 QUnit.test('Check validation of list nested models', function(assert) {
-
     //Save proto for restoring after the test otherwise next fails alternately.
     var tmpNestedModel = Backbone.Form.editors.List.NestedModel;
 
