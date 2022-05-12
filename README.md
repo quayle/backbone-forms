@@ -1,3 +1,7 @@
+Note that this is a custom fork, based on v0.14.1 version, with only
+some of the changes merged from from upstream's master.
+Created for own needs.
+
 # backbone-forms
 
 A flexible, customisable form framework for Backbone.js applications.
@@ -7,10 +11,6 @@ A flexible, customisable form framework for Backbone.js applications.
 - Nested forms
 - Advanced and custom editors (e.g. NestedModel, List, Date, DateTime)
 - Custom HTML templates
-
-Note that this is a custom fork, based on v0.14.1 version, with only
-some of the changes merged from from upstream's master.
-Created for own needs.
 
 ### Example: Quickly generate forms to edit models
 
