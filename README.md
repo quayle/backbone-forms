@@ -328,6 +328,12 @@ The following default editors are included:
 
 For each field definition in the schema you can use the following optional attributes:
 
+- **`Field`**
+
+  Defines Field to use for this entry.
+
+  If not defined, defaults to `Form.Field`.
+
 - **`type`**
 
   The editor to use in the field. Can be a string for any editor that has been added to `Backbone.Form.editors`, such as the built-in editors (e.g. `{ type: 'TextArea' }`), or can be a constructor function for a custom editor (e.g. : `{ type: MyEditor }`).

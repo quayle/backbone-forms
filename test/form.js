@@ -520,6 +520,37 @@ QUnit.test('creates a new instance of the Field defined on the form - with model
   assert.deepEqual(optionsArg.model, form.model);
 });
 
+QUnit.test('creates a new instance of the Field defined on the form field schema - with model', function(assert) {
+  var MockField = this.MockField;
+
+  var form = new Form({
+    Field: MockField,
+    idPrefix: 'foo',
+    model: new Backbone.Model()
+  });
+
+  this.sinon.spy(MockField.prototype, 'initialize');
+
+  var field = form.createField('name', {
+    type: 'Text',
+    Field: MockField
+  });
+
+  assert.deepEqual(field instanceof MockField, true);
+
+  //Check correct options were passed
+  var optionsArg = MockField.prototype.initialize.args[0][0];
+
+  assert.deepEqual(optionsArg.form, form);
+  assert.deepEqual(optionsArg.key, 'name');
+  assert.deepEqual(optionsArg.schema, {
+    type: 'Text',
+    Field: MockField
+  });
+  assert.deepEqual(optionsArg.idPrefix, 'foo');
+  assert.deepEqual(optionsArg.model, form.model);
+});
+
 QUnit.test('creates a new instance of the Field defined on the form - without model', function(assert) {
   var MockField = this.MockField;
 
@@ -532,6 +563,31 @@ QUnit.test('creates a new instance of the Field defined on the form - without mo
   this.sinon.spy(MockField.prototype, 'initialize');
 
   var field = form.createField('name', { type: 'Text' });
+
+  assert.deepEqual(field instanceof MockField, true);
+
+  //Check correct options were passed
+  var optionsArg = MockField.prototype.initialize.args[0][0];
+
+  assert.deepEqual(optionsArg.value, 'John');
+});
+
+QUnit.test('creates a new instance of the Field defined on the form field schema - without model', function(assert) {
+  var MockField = this.MockField;
+
+  var form = new Form({
+    idPrefix: 'foo',
+    data: {
+      name: 'John'
+    }
+  });
+
+  this.sinon.spy(MockField.prototype, 'initialize');
+
+  var field = form.createField('name', {
+    type: 'Text',
+    Field: MockField
+  });
 
   assert.deepEqual(field instanceof MockField, true);
 

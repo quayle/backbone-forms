@@ -118,7 +118,8 @@ var Form = Backbone.View.extend({
       options.value = undefined;
     }
 
-    var field = new this.Field(options);
+    var Field = schema.Field || this.Field;
+    var field = new Field(options);
 
     this.listenTo(field.editor, 'all', this.handleEditorEvent);
 
