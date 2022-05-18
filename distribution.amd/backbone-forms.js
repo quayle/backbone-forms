@@ -1,5 +1,5 @@
 /**
- * Backbone Forms v0.14.1
+ * Backbone Forms v0.14.3
  *
  * NOTE:
  * This version is for use with RequireJS
@@ -132,7 +132,8 @@ var Form = Backbone.View.extend({
       options.value = undefined;
     }
 
-    var field = new this.Field(options);
+    var Field = schema.Field || this.Field;
+    var field = new Field(options);
 
     this.listenTo(field.editor, 'all', this.handleEditorEvent);
 
@@ -2522,7 +2523,7 @@ Form.editors.DateTime = Form.editors.Base.extend({
 
 
   //Metadata
-  Form.VERSION = '0.14.1';
+  Form.VERSION = '0.14.3';
 
   //Exports
   Backbone.Form = Form;

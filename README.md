@@ -980,7 +980,11 @@ var CustomEditor = Backbone.Form.editors.Base.extend({
 
 ## Changelog
 
-### master
+
+### 0.14.3
+- Allow overriding Field to use per field schema.
+
+### master (possibly not included)
 - Add `submitButton` to form constructor. Adds a submit button with given text.
 - No longer require jquery from within the CommonJS module. NOTE: You must now set Backbone.$ yourself if using CommonJS e.g. browserify
 - Fix CommonJS backend issues (ndrsn)
