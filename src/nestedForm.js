@@ -1,17 +1,11 @@
 
 //==================================================================================================
-//NESTEDFIELD
+//NESTEDFORM
 //==================================================================================================
 
-Form.NestedField = Form.Field.extend({}, {
+Form.NestedForm = Form.extend({}, {
   //STATICS
   template: _.template('\
-    <div>\
-      <span data-editor></span>\
-      <% if (help) { %>\
-        <div><%= help %></div>\
-      <% } %>\
-      <div data-error></div>\
-    </div>\
+    <div data-fieldsets></div>\
   ', null, Form.templateSettings)
 });
