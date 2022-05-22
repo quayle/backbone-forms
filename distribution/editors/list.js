@@ -296,10 +296,6 @@
       this.template = options.template || this.schema.itemTemplate || this.constructor.template;
       this.errorClassName = options.errorClassName || this.constructor.errorClassName;
       this.form = options.form;
-    },
-
-    render: function() {
-      var $ = Backbone.$;
 
       //Create editor
       this.editor = new this.Editor({
@@ -309,7 +305,12 @@
         list: this.list,
         item: this,
         form: this.form
-      }).render();
+      });
+      this.editor.render();
+    },
+
+    render: function() {
+      var $ = Backbone.$;
 
       //Create main element
       var $el = $($.trim(this.template()));

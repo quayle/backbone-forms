@@ -52,6 +52,9 @@ define(['jquery', 'underscore', 'backbone', 'backbone-forms'], function($, _, Ba
   ');
 
   Form.editors.Base.prototype.className = 'form-control';
+  Form.editors.Object.prototype.className = '';
+  Form.editors.NestedModel.prototype.className = '';
+
   Form.Field.errorClassName = 'has-error';
 
 

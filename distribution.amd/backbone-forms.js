@@ -71,6 +71,7 @@ var Form = Backbone.View.extend({
     this.Fieldset = options.Fieldset || this.Fieldset || constructor.Fieldset;
     this.Field = options.Field || this.Field || constructor.Field;
     this.NestedField = options.NestedField || this.NestedField || constructor.NestedField;
+    this.NestedForm = options.NestedForm || this.NestedForm || constructor.NestedForm;
 
     //Check which fields will be included (defaults to all)
     var selectedFields = this.selectedFields = options.fields || _.keys(schema);
@@ -81,6 +82,7 @@ var Form = Backbone.View.extend({
     _.each(selectedFields, function(key) {
       var fieldSchema = schema[key];
       fields[key] = this.createField(key, fieldSchema);
+      fields[key].render();
     }, this);
 
     //Create fieldsets
@@ -88,7 +90,9 @@ var Form = Backbone.View.extend({
         fieldsets = this.fieldsets = [];
 
     _.each(fieldsetSchema, function(itemSchema) {
-      this.fieldsets.push(this.createFieldset(itemSchema));
+      var fieldset = this.createFieldset(itemSchema);
+      fieldset.render();
+      this.fieldsets.push(fieldset);
     }, this);
   },
 
@@ -132,7 +136,12 @@ var Form = Backbone.View.extend({
       options.value = undefined;
     }
 
-    var Field = schema.Field || this.Field;
+    // like: Field = schema.Field || this.Field; but we prevent call on undefined
+    var Field = this.Field;
+    if (!_.isUndefined(schema) && schema.Field) {
+      Field = schema.Field;
+    }
+
     var field = new Field(options);
 
     this.listenTo(field.editor, 'all', this.handleEditorEvent);
@@ -211,7 +220,7 @@ var Form = Backbone.View.extend({
       _.each(keys, function(key) {
         var field = fields[key];
 
-        $container.append(field.editor.render().el);
+        $container.append(field.editor.el);
       });
     });
 
@@ -231,7 +240,7 @@ var Form = Backbone.View.extend({
       _.each(keys, function(key) {
         var field = fields[key];
 
-        $container.append(field.render().el);
+        $container.append(field.el);
       });
     });
 
@@ -243,7 +252,7 @@ var Form = Backbone.View.extend({
       if (_.isUndefined(selection)) return;
 
       _.each(self.fieldsets, function(fieldset) {
-        $container.append(fieldset.render().el);
+        $container.append(fieldset.el);
       });
     });
 
@@ -772,6 +781,7 @@ Form.Field = Backbone.View.extend({
 
     //Create editor
     this.editor = this.createEditor();
+    this.editor.render();
   },
 
   /**
@@ -883,7 +893,7 @@ Form.Field = Backbone.View.extend({
 
     //Only render the editor if Hidden
     if (schema.type == Form.editors.Hidden) {
-      return this.setElement(editor.render().el);
+      return this.setElement(editor.el);
     }
 
     //Render field
@@ -899,7 +909,7 @@ Form.Field = Backbone.View.extend({
 
       if (_.isUndefined(selection)) return;
 
-      $container.append(editor.render().el);
+      $container.append(editor.el);
     });
 
     this.setElement($field);
@@ -1028,7 +1038,7 @@ Form.Field = Backbone.View.extend({
 //==================================================================================================
 
 Form.NestedField = Form.Field.extend({}, {
-
+  //STATICS
   template: _.template('\
     <div>\
       <span data-editor></span>\
@@ -1038,7 +1048,18 @@ Form.NestedField = Form.Field.extend({}, {
       <div data-error></div>\
     </div>\
   ', null, Form.templateSettings)
+});
 
+
+//==================================================================================================
+//NESTEDFORM
+//==================================================================================================
+
+Form.NestedForm = Form.extend({}, {
+  //STATICS
+  template: _.template('\
+    <div data-fieldsets></div>\
+  ', null, Form.templateSettings)
 });
 
 /**
@@ -1967,7 +1988,7 @@ Form.editors.Checkboxes = Form.editors.Select.extend({
       if (_.isObject(option)) {
         if (option.group) {
           var originalId = self.id;
-          self.id += "-" + self.groupNumber++; 
+          self.id += "-" + self.groupNumber++;
           itemHtml = ('<fieldset class="group"> <legend>'+option.group+'</legend>');
           itemHtml += (self._arrayToHtml(option.options));
           itemHtml += ('</fieldset>');
@@ -2018,23 +2039,25 @@ Form.editors.Object = Form.editors.Base.extend({
     //Check required options
     if (!this.form) throw new Error('Missing required option "form"');
     if (!this.schema.subSchema) throw new Error("Missing required 'schema.subSchema' option for Object editor");
-  },
 
-  render: function() {
     //Get the constructor for creating the nested form; i.e. the same constructor as used by the parent form
-    var NestedForm = this.form.constructor;
+    var NestedForm = this.form.NestedForm;
 
     //Create the nested form
     this.nestedForm = new NestedForm({
       schema: this.schema.subSchema,
       data: this.value,
       idPrefix: this.id + '_',
-      Field: NestedForm.NestedField
+      Field: NestedForm.NestedField,
+      Fieldset: NestedForm.Fieldset
     });
+    this.nestedForm.render();
+  },
 
+  render: function() {
     this._observeFormEvents();
 
-    this.$el.html(this.nestedForm.render().el);
+    this.$el.html(this.nestedForm.el);
 
     if (this.hasFocus) this.trigger('blur', this);
 
@@ -2042,7 +2065,9 @@ Form.editors.Object = Form.editors.Base.extend({
   },
 
   getValue: function() {
-    if (this.nestedForm) return this.nestedForm.getValue();
+    if (this.nestedForm) {
+      return this.nestedForm.getValue();
+    }
 
     return this.value;
   },
@@ -2050,7 +2075,7 @@ Form.editors.Object = Form.editors.Base.extend({
   setValue: function(value) {
     this.value = value;
 
-    this.render();
+    this.nestedForm.setValue(this.value);
   },
 
   focus: function() {
@@ -2072,16 +2097,18 @@ Form.editors.Object = Form.editors.Base.extend({
   },
 
   validate: function() {
-    var errors = _.extend({}, 
+    var errors = _.extend({},
       Form.editors.Base.prototype.validate.call(this),
       this.nestedForm.validate()
     );
-    return errors; 
+    return errors;
   },
 
   _observeFormEvents: function() {
-    if (!this.nestedForm) return;
-    
+    if (!this.nestedForm) {
+      return;
+    }
+
     this.nestedForm.on('all', function() {
       // args = ["key:change", form, fieldEditor]
       var args = _.toArray(arguments);
@@ -2108,11 +2135,9 @@ Form.editors.NestedModel = Form.editors.Object.extend({
 
     if (!this.form) throw new Error('Missing required option "form"');
     if (!options.schema.model) throw new Error('Missing required "schema.model" option for NestedModel editor');
-  },
 
-  render: function() {
     //Get the constructor for creating the nested form; i.e. the same constructor as used by the parent form
-    var NestedForm = this.form.constructor;
+    var NestedForm = this.form.NestedForm;
 
     var data = this.value || {},
         key = this.key,
@@ -2126,11 +2151,14 @@ Form.editors.NestedModel = Form.editors.Object.extend({
       idPrefix: this.id + '_',
       fieldTemplate: 'nestedField'
     });
+    this.nestedForm.render();
+  },
 
+  render: function() {
     this._observeFormEvents();
 
     //Render form
-    this.$el.html(this.nestedForm.render().el);
+    this.$el.html(this.nestedForm.el);
 
     if (this.hasFocus) this.trigger('blur', this);
 
