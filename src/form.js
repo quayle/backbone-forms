@@ -68,6 +68,7 @@ var Form = Backbone.View.extend({
     _.each(selectedFields, function(key) {
       var fieldSchema = schema[key];
       fields[key] = this.createField(key, fieldSchema);
+      fields[key].render();
     }, this);
 
     //Create fieldsets
@@ -75,7 +76,9 @@ var Form = Backbone.View.extend({
         fieldsets = this.fieldsets = [];
 
     _.each(fieldsetSchema, function(itemSchema) {
-      this.fieldsets.push(this.createFieldset(itemSchema));
+      var fieldset = this.createFieldset(itemSchema);
+      fieldset.render();
+      this.fieldsets.push(fieldset);
     }, this);
   },
 
@@ -119,7 +122,12 @@ var Form = Backbone.View.extend({
       options.value = undefined;
     }
 
-    var Field = schema.Field || this.Field;
+    // like: Field = schema.Field || this.Field; but we prevent call on undefined
+    var Field = this.Field;
+    if (!_.isUndefined(schema) && schema.Field) {
+      Field = schema.Field;
+    }
+
     var field = new Field(options);
 
     this.listenTo(field.editor, 'all', this.handleEditorEvent);
@@ -198,7 +206,7 @@ var Form = Backbone.View.extend({
       _.each(keys, function(key) {
         var field = fields[key];
 
-        $container.append(field.editor.render().el);
+        $container.append(field.editor.el);
       });
     });
 
@@ -218,7 +226,7 @@ var Form = Backbone.View.extend({
       _.each(keys, function(key) {
         var field = fields[key];
 
-        $container.append(field.render().el);
+        $container.append(field.el);
       });
     });
 
@@ -230,7 +238,7 @@ var Form = Backbone.View.extend({
       if (_.isUndefined(selection)) return;
 
       _.each(self.fieldsets, function(fieldset) {
-        $container.append(fieldset.render().el);
+        $container.append(fieldset.el);
       });
     });
 

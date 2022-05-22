@@ -152,9 +152,18 @@ QUnit.test('uses template stored on form class', function(assert) {
 });
 
 QUnit.test('uses fieldset and field classes stored on prototype over those stored on form class', function(assert) {
-  var DifferentField = function () {};
-  var DifferentFieldset = function () {};
-  var DifferentNestedField = function () {};
+  var DifferentField = function () {
+    this.render = function() {}
+    return this;
+  };
+  var DifferentFieldset = function () {
+    this.render = function() {}
+    return this;
+  };
+  var DifferentNestedField = function () {
+    this.render = function() {}
+    return this;
+  };
 
   Form.prototype.Field = DifferentField;
   Form.prototype.Fieldset = DifferentFieldset;

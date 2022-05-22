@@ -33,6 +33,7 @@ Form.Field = Backbone.View.extend({
 
     //Create editor
     this.editor = this.createEditor();
+    this.editor.render();
   },
 
   /**
@@ -144,7 +145,7 @@ Form.Field = Backbone.View.extend({
 
     //Only render the editor if Hidden
     if (schema.type == Form.editors.Hidden) {
-      return this.setElement(editor.render().el);
+      return this.setElement(editor.el);
     }
 
     //Render field
@@ -160,7 +161,7 @@ Form.Field = Backbone.View.extend({
 
       if (_.isUndefined(selection)) return;
 
-      $container.append(editor.render().el);
+      $container.append(editor.el);
     });
 
     this.setElement($field);

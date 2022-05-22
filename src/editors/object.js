@@ -31,15 +31,16 @@ Form.editors.Object = Form.editors.Base.extend({
       schema: this.schema.subSchema,
       data: this.value,
       idPrefix: this.id + '_',
-      Field: NestedForm.NestedField
+      Field: NestedForm.NestedField,
+      Fieldset: NestedForm.Fieldset
     });
+    this.nestedForm.render();
   },
 
   render: function() {
-
     this._observeFormEvents();
 
-    this.$el.html(this.nestedForm.render().el);
+    this.$el.html(this.nestedForm.el);
 
     if (this.hasFocus) this.trigger('blur', this);
 
@@ -47,7 +48,9 @@ Form.editors.Object = Form.editors.Base.extend({
   },
 
   getValue: function() {
-    if (this.nestedForm) return this.nestedForm.getValue();
+    if (this.nestedForm) {
+      return this.nestedForm.getValue();
+    }
 
     return this.value;
   },
@@ -77,16 +80,18 @@ Form.editors.Object = Form.editors.Base.extend({
   },
 
   validate: function() {
-    var errors = _.extend({}, 
+    var errors = _.extend({},
       Form.editors.Base.prototype.validate.call(this),
       this.nestedForm.validate()
     );
-    return errors; 
+    return errors;
   },
 
   _observeFormEvents: function() {
-    if (!this.nestedForm) return;
-    
+    if (!this.nestedForm) {
+      return;
+    }
+
     this.nestedForm.on('all', function() {
       // args = ["key:change", form, fieldEditor]
       var args = _.toArray(arguments);

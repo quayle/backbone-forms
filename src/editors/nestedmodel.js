@@ -28,6 +28,18 @@ Form.editors.NestedModel = Form.editors.Object.extend({
       idPrefix: this.id + '_',
       fieldTemplate: 'nestedField'
     });
+    this.nestedForm.render();
+  },
+
+  render: function() {
+    this._observeFormEvents();
+
+    //Render form
+    this.$el.html(this.nestedForm.el);
+
+    if (this.hasFocus) this.trigger('blur', this);
+
+    return this;
   },
 
   /**
