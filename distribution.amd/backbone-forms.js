@@ -1,5 +1,5 @@
 /**
- * Backbone Forms v0.14.3
+ * Backbone Forms v0.14.4
  *
  * NOTE:
  * This version is for use with RequireJS
@@ -2551,7 +2551,7 @@ Form.editors.DateTime = Form.editors.Base.extend({
 
 
   //Metadata
-  Form.VERSION = '0.14.3';
+  Form.VERSION = '0.14.4';
 
   //Exports
   Backbone.Form = Form;
