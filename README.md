@@ -985,6 +985,10 @@ var CustomEditor = Backbone.Form.editors.Base.extend({
 ## Changelog
 
 
+### 0.14.4
+- Add `addLabel` schema option for List editor, which allows setting custom text for button (merged from upstream)
+- Allow overriding used List.Item in the List editor
+
 ### 0.14.3
 - Allow overriding Field to use per field schema.
 

@@ -33,6 +33,7 @@
       }, schema);
 
       this.template = options.template || this.constructor.template;
+      this.ListItem = options.ListItem || editors.List.Item;
 
       //Determine the editor to use
       this.Editor = (function() {
@@ -98,7 +99,7 @@
           editors = Form.editors;
 
       //Create the item
-      var item = new editors.List.Item({
+      var item = new this.ListItem({
         list: this,
         form: this.form,
         schema: this.schema,
