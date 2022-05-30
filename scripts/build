@@ -58,7 +58,7 @@ builder(baseDir)
 
 
 //Extra editors
-['list'].forEach(function(name) {
+['list', 'table'].forEach(function(name) {
   //Save regular dev and mini versions
   builder(baseDir)
     .load('src/editors/extra/'+name+'.js')
