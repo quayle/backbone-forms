@@ -84,6 +84,10 @@ Form.editors.Object = Form.editors.Base.extend({
       Form.editors.Base.prototype.validate.call(this),
       this.nestedForm.validate()
     );
+    var hasErrors = _.compact(errors).length ? true : false;
+    if (!hasErrors) {
+      return null;
+    }
     return errors;
   },
 
